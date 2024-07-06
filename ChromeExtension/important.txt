@@ -1,0 +1,20 @@
+extension key : "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA0WA+STPQszV8X/rUM/GhCWthDQeQiawoM5EBqBYcucaDmG8XNsHTm1uk0H6oA2s+IL+ugA207OqaRrkXdWByB0+NGfSCwy7MrpbbgE9doWzzpJwsJEle1LdDBYJH52129FlqLs1t+Sv/Ti+f0rVHEtnI2P3TSAriy9Vzn1xfKUj5TwmvvC3HXaoRR9szyU0v1YMDclDVGjCxBeYbzNT5qis8FuvoZSiZqOu0lDjRQJVduVDEbabHZTfWkcbY09DgK73xZAKKANxNPfBma5Mu/gRktykmzfSu4Mjv1gJduQKkEnWm/iHNqEKpmVmyClnaAWTcF8C+TSz//cR91xNmOwIDAQAB"
+https://omkgamlccbnnlhlmjlmglbdlinplknkk.chromiumapp.org/#state=jkls24a3n&id_token=eyJhbGciOiJSUzI1NiIsImtpZCI6IjY3NGRiYmE4ZmFlZTY5YWNhZTFiYzFiZTE5MDQ1MzY3OGY0NzI4MDMiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJhenAiOiI3MjI4ODEyODcwMzgtdmV1b2xlYjcxbWJncGwxanVicmVsazRtcG52aDdianAuYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJhdWQiOiI3MjI4ODEyODcwMzgtdmV1b2xlYjcxbWJncGwxanVicmVsazRtcG52aDdianAuYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJzdWIiOiIxMTE4OTAyNDAyMDIxMzY5Nzk0MTEiLCJub25jZSI6InlwNWF3ZnhvcnpnanVmcHlmczZ5Mm0iLCJuYmYiOjE3MTc5MjQ0NjQsImlhdCI6MTcxNzkyNDc2NCwiZXhwIjoxNzE3OTI4MzY0LCJqdGkiOiIwZDQyMmM5M2NhNDc2YTVhNDNmZWZmMDFmZDU2YzM4NWUwNmY3MGRjIn0.f1vGIJUhVDMXn4eDCBlBqdk4fgFvkRXLjU9NATXGLZdAzqSNETYZ-vHnsjsUVmIa7FR0TWcn2tu1l0CL_FQ0H3y4irAVRENITslkWbFY9S0c2AhJGtEhlz31yCi1f6tDGSTyrwcSfJm28XGJmkApklet33dzczI_5IiMhVnEuTPMor7N2Cx--3CNT8FhudKcqW5rUQgJqocMzgdx6ZaE-O2JdKvB3MF_cHZ241xhIbaXSzq81H1SmYgS3MfZGq-CT2aMoXWs4Ez_iOIitMOaBw3FTN65pi9_YHILE4TZUpuSRn9Xit7haDuOR8pj27gt5_UqzrbRYzVsopWb1Ct1BQ&authuser=0&prompt=consent&version_info=CmxfU1ZJX0VJUFJ3cnFZem9ZREdCQWlQMDFCUlVSSVpsOXhhMDVWZVdaZmFrRXRUVm93WTA5NkxUSmFkVzVPWjFaTlFrNDJWemxUUm1kNGIyVXdaV294YTJOR2NpMXJhRVF6Y1c5ck1UUlJad18
+
+
+
+
+
+
+    "content_scripts" : [
+        {
+            "matches" : ["<all_urls>"],
+            "js" : ["./popup.js"]
+        }
+    ],
+
+
+
+
+     "extension_pages": "script-src 'self' ; object-src 'self';",
+          "sandbox": "sandbox allow-scripts allow-forms allow-popups allow-modals; script-src 'self' 'unsafe-inline' 'unsafe-eval'; child-src 'self';"

@@ -1,0 +1,36 @@
+{
+    "name" : "Login test",
+    "description" : "test openid",
+    "version" : "0.1.0",
+    "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAyvw45FBjlJuesf7NPXzs9FuGj8dquOMqn+vX6MUOdo5+QHchyN3XiDXsOEyYaDdu1cDhjCKbJ9Bj56myxlc4cCioMj6x4gg928nbyIyRK3zL/WlzENmMRo9SGEhgyc4mCX3JRwUHFRRlUYCInxBrQPVFRo9nPNrkNUyrGqbre6r04WabEzuVebgiMmV+Ncp4xTKk5HMfeQ5SX/SYtuGHVrWibgcOlM06b+V1RbNGnT7JwbeJTx1Ag+1K3S4l+X2qaEbWx1RtMzj3aMWXTQlx2McEaYvcXd5RTDHBwBeSKK4j+nGkLUduOd/cUXqGKVQlBsdexUIMqsmLkddm9wFmvwIDAQAB",
+    "manifest_version" : 3,
+    "icons" : {
+
+    },
+    "background" : {
+        "service_worker" : "./finalBackground.js" , "type" : "module"
+    },
+    "action":{
+        "default_popup" : "./popup.html"
+    },
+    "permissions" :[
+        "identity",
+        "webRequest",
+        "declarativeNetRequestWithHostAccess",
+        "webRequestAuthProvider",
+        "tabs",
+        "scripting",
+        "offscreen"
+    ],
+    "host_permissions": [
+    "<all_urls>"
+    ],
+  
+    "content_security_policy": {
+        "extension_pages": "script-src 'self' ; object-src 'self';",
+        "sandbox": "sandbox allow-scripts allow-forms allow-popups allow-modals; script-src 'self' 'unsafe-inline' 'unsafe-eval'; child-src 'self';"
+    }
+    
+        
+
+}

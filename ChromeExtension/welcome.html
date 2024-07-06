@@ -1,0 +1,43 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>welcome</title>
+</head>
+<body>
+    <p id="welcomeMessage"></p>
+    <form >
+        <label for="addurl">Enter URL:</label>
+        <input type="text" id="enterURL" name="enterURL"><br><br>
+        <button type="button" id="urlSubmit">Submit</button>
+     </form> 
+    <form >
+        <label for="removeurl">Enter URL to remove:</label>
+        <input type="text" id="enterURLRemove" name="enterURLRemove"><br><br>
+        <button type="button" id="urlRemoveSubmit">Remove</button>
+     </form> 
+     <form >
+         <label for="trackurl">Enter URL to get its benchmark:</label>
+         <input type="text" id="enterURLTrack" name="enterURLTrack"><br><br>
+         <button type="button" id="urlTrackSubmit">Track</button>
+        </form> 
+        <form >
+            <label for="urlToGetAggregate">Enter URL you want to get aggregate of along with the timestamps :</label>
+            <input type="text" placeholder="url" id="enterURLAggregate" name="enterURLAggregate"><br><br>
+            <input type="text" placeholder="from" id="enterTime1" name="enterTime1"><br><br>
+            <input type="text" placeholder="to" id="enterTime2" name="enterTime2"><br><br>
+            <button type="button" id="urlAggregateSubmit">Track</button>
+        </form> 
+        <button id="plotButton">see-scatter-plot</button>
+        
+     <button id="sign-out">Sign Out</button>
+     <!-- <form id="myForm">
+        <label for="textInput">Enter text:</label>
+        <input type="text" id="textInput" name="textInput">
+        <button type="button" onclick="handleFormSubmit()">Submit</button>
+    </form> -->
+     <script src="./welcome.js"></script>
+
+      
+</body>
+</html>
