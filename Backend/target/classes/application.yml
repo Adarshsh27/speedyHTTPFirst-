@@ -1,0 +1,5 @@
+spring:
+  data:
+    mongodb:
+      uri : mongodb+srv://admin:admin@speedyhttp.nej86vi.mongodb.net/?retryWrites=true&w=majority&appName=speedyHTTP
+      database : userEntry
