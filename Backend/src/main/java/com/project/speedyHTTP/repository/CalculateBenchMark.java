@@ -1,8 +1,10 @@
 package com.project.speedyHTTP.repository;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.project.speedyHTTP.model.Metrics;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.Data;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
@@ -33,14 +35,21 @@ public class CalculateBenchMark {
         List<Double> responseTimes = new ArrayList<>();
         for(int i = 0 ; i < callMetricArray.size() ; i++){
             String jsonObj = callMetricArray.get(i).get_source();
-            System.out.println(jsonObj);
+//            System.out.println("printing jsonObj");
+//            System.out.println(jsonObj);
             responseTimes.add(getMetrics(jsonObj).getResponseTime());
         }
+//        System.out.println("final responseTimes array");
+//        for(double i : responseTimes)
+//        {
+//            System.out.println(i);
+//        }
+//        System.out.println();
         return responseTimes;
     }
     public static Metrics getMetrics(String input){
         input = input.replace("{callMetrics={", "").replace("}}", "");
-        System.out.println("here input is : " + input);
+//        System.out.println("here input is : " + input);
         // Step 2: Split the string into key-value pairs
         String[] keyValuePairs = input.split(", ");
 
@@ -63,12 +72,14 @@ public class CalculateBenchMark {
         ans.setTotalTime(totalTime);
         ans.setResponseTime(responseTime);
         // Print the extracted values
-        System.out.println("Response Time: " + responseTime);
-        System.out.println("Total Time: " + totalTime);
+//        System.out.println("Response Time: " + responseTime);
+//        System.out.println("Total Time: " + totalTime);
         return ans;
     }
 
     // Classes representing the JSON structure
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    @Data
     public static class Response {
         private int took;
         private boolean timed_out;
@@ -134,7 +145,8 @@ public class CalculateBenchMark {
 //            this.aggregations = aggregations;
 //        }
     }
-
+@JsonIgnoreProperties(ignoreUnknown = true)
+@Data
     public static class Shards {
         private int failed;
         private int successful;
@@ -173,7 +185,8 @@ public class CalculateBenchMark {
             this.skipped = skipped;
         }
     }
-
+@JsonIgnoreProperties(ignoreUnknown = true)
+@Data
     public static class Hits {
         private Object total;
         private List<callMetricHits> hits;
@@ -204,7 +217,8 @@ public class CalculateBenchMark {
             this.max_score = max_score;
         }
     }
-
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    @Data
     public  static class callMetricHits{
         private Object _index;
         private Object _id;

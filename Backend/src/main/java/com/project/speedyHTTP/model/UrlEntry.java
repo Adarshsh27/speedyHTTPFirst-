@@ -13,12 +13,38 @@ import java.util.Map;
 @NoArgsConstructor
 public class UrlEntry {
     @Id
+    // this is the value of urlHash from network Call Entry .. *://domain/path*/queries/method
     private String id;
     private String url;
     private double benchMarkTime;
     private int totalCalls;
     private int newEntries;
     private Map<String, String> queryParams = new HashMap<>();
+    private String method;
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public Map<String, String> getQueryParams() {
+        return queryParams;
+    }
+
+    public void setQueryParams(Map<String, String> queryParams) {
+        this.queryParams = queryParams;
+    }
+
+    public String getMethod() {
+        return method;
+    }
+
+    public void setMethod(String method) {
+        this.method = method;
+    }
 
     public UrlEntry(String id, String url, double benchMarkTime, int totalCalls, int newEntries) {
         this.id = id;

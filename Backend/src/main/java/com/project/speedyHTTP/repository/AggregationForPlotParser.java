@@ -1,8 +1,10 @@
 package com.project.speedyHTTP.repository;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.project.speedyHTTP.model.PlotDataPoint;
+import lombok.Data;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
@@ -20,10 +22,12 @@ public class AggregationForPlotParser
             throw new RuntimeException(e);
         }
 
-        List<PlotDataPoint> dataPoints= response.getHits().getDataPoints();
+        List<PlotDataPoint> dataPoints = response.getHits().getDataPoints();
         return dataPoints;
 
     }
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    @Data
     public static class Response{
         private int took;
         private boolean timed_out;
@@ -62,6 +66,8 @@ public class AggregationForPlotParser
             this.took = took;
         }
     }
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    @Data
     public static class Hits{
         private Object total;
         private List<Bucket> hits;
@@ -96,12 +102,13 @@ public class AggregationForPlotParser
 //                ans.add(i.get_source().getPlotDataPoint());
 //            }
             for(Bucket i : hits){
-                ans.add(parseAndPrint(i.get_source()));
+                ans.add(parseAndPrint(i.get_source() , i.get_id()));
             }
-
             return ans;
         }
     }
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    @Data
     public static class Bucket{
         private String _index;
         private String _id;
@@ -140,7 +147,7 @@ public class AggregationForPlotParser
             this._source = _source;
         }
     }
-    public static PlotDataPoint parseAndPrint(String input) {
+    public static PlotDataPoint parseAndPrint(String input , String id) {
         // Remove the outer braces
         input = input.substring(1, input.length() - 1);
 
@@ -170,10 +177,11 @@ public class AggregationForPlotParser
 
         // Print the parsed values
         PlotDataPoint ans = new PlotDataPoint();
-        System.out.println("Timestamp: " + timestamp);
+//        System.out.println("Timestamp: " + timestamp);
         ans.setTimestamp(Long.toString(timestamp));
         ans.setResponseTime(responseTime);
-        System.out.println("Response Time: " + responseTime);
+//        System.out.println("Response Time: " + responseTime);
+        ans.setId(id);
         return ans;
     }
 

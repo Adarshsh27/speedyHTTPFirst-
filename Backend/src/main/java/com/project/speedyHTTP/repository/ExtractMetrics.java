@@ -26,7 +26,7 @@ public class ExtractMetrics {
         }
 
         // Print the extracted values
-        System.out.println("Response Time: " + responseTime);
-        System.out.println("Total Time: " + totalTime);
+//        System.out.println("Response Time: " + responseTime);
+//        System.out.println("Total Time: " + totalTime);
     }
 }

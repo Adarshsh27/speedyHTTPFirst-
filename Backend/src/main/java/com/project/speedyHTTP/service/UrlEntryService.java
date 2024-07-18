@@ -1,6 +1,7 @@
 package com.project.speedyHTTP.service;
 import com.project.speedyHTTP.model.NetworkCallEntry;
 import com.project.speedyHTTP.model.UrlEntry;
+import com.project.speedyHTTP.repository.GetNetworkCallRepo;
 import com.project.speedyHTTP.repository.UrlEntryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,7 +20,8 @@ public class UrlEntryService {
     private com.project.speedyHTTP.repository.URLParser URLParser;
     @Autowired
     private CalculateBenchMarkService calculateBenchMarkService;
-
+    @Autowired
+    private GetNetworkCallRepo getNetworkCallRepo;
 
     public UrlEntry addUrlEntry(UrlEntry url){
         return urlEntryRepository.save(url);
@@ -31,31 +33,38 @@ public class UrlEntryService {
         return urlEntryRepository.findById(id).orElse(null);
     }
 
-    public UrlEntry updateUrlEntry(NetworkCallEntry newEntry) throws IOException {
+    /**
+     * We are updating the benchmark value for this particular type of call
+     * @param newEntry
+     * @return
+     * @throws IOException
+     */
+    public UrlEntry updateUrlBenchmarkEntry(NetworkCallEntry newEntry) throws IOException {
         String id = newEntry.getUrlHash();
         UrlEntry current = getUrl(id);
-
-        try {
-            Map<String, String > queryParams = URLParser.getQueryParams((new URL(newEntry.getUrl())).getQuery());
-        } catch (URISyntaxException e) {
-            throw new RuntimeException(e);
-        }
-
+        // this is the first of its kind so just save it
         if(current == null){
-            String hashId = URLParser.getHashId(newEntry.getUrl());
-            current = new UrlEntry(hashId , newEntry.getUrl() , newEntry.getCallMetrics().getTotalTime() , 1 , 0);
-            // check for benchmark of other entries with fewer query params
-
+            String hashId = newEntry.getUrlHash();
+            current = new UrlEntry(hashId , newEntry.getUrl() , newEntry.getCallMetrics().getResponseTime() , 1 , 0);
         }else{
+            current.setNewEntries(current.getNewEntries() + 1);
+            current.setTotalCalls(current.getTotalCalls() + 1);
+            current.setMethod(newEntry.getMethod());
+            // so we have some benchmark existing
             if(current.getNewEntries() >= ((current.getTotalCalls())/10)){
-                current.setBenchMarkTime(calculateBenchMarkService.getAggregate(current.getId(), Long.toString(0) , Long.toString(newEntry.getTimestamp())));
+                // we need to update
+                // ok so here have set only the benchmark time and not update the query param map because we will find that n , n -1 query thing anyways
+                // LOOK INTO THIS
+                // calculating the new Benchmark
+                System.out.println("we are going in ");
+                double newBenchmark = (calculateBenchMarkService.getAggregate(newEntry.getUrl(), current.getMethod(), Long.toString(0) , Long.toString(newEntry.getTimestamp()), false , newEntry.getUid(),false));
+//                NetworkCallEntry idealEntry = getNetworkCallRepo.nearestIdealNetworkCall(newBenchmark , newEntry.getUrlHash());
+//   ------>      Asking mentors first... should i keep it with the calculated time, or the ideal entry time
+                // this is correct because if we alter benchmark to anyside our calculation changes.
+                current.setBenchMarkTime(newBenchmark);
             }
         }
-        double responseTime = newEntry.getCallMetrics().getResponseTime();
-        double getBenchMark = current.getBenchMarkTime();
-        if(((Math.abs(responseTime - getBenchMark) / (getBenchMark))*100) >= 50){
-
-        }
+        System.out.println("here");
         return urlEntryRepository.save(current);
     }
     public boolean deleteUrlEntry(String id){

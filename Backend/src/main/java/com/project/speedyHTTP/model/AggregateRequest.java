@@ -1,23 +1,52 @@
 package com.project.speedyHTTP.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class AggregateRequest {
-    private String urlHash;
+    private String url;
     private String time1;
     private String time2;
+    private String method;
+    private String uid;
+    private Boolean flag;
 
+    public String getUid() {
+        return uid;
+    }
 
-    public AggregateRequest(String urlHash, String time1, String time2) {
-        this.urlHash = urlHash;
+    public void setUid(String uid) {
+        this.uid = uid;
+    }
+
+    public Boolean getFlag() {
+        return flag;
+    }
+
+    public void setFlag(Boolean flag) {
+        this.flag = flag;
+    }
+
+    public String getMethod() {
+        return method;
+    }
+
+    public void setMethod(String method) {
+        this.method = method;
+    }
+
+    public AggregateRequest(String url, String time1, String time2) {
+        this.url = url;
         this.time1 = time1;
         this.time2 = time2;
     }
 
-    public String getUrlHash() {
-        return urlHash;
+    public String getUrl() {
+        return url;
     }
 
-    public void setUrlHash(String urlHash) {
-        this.urlHash = urlHash;
+    public void setUrl(String url) {
+        this.url = url;
     }
 
     public String getTime1() {
