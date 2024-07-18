@@ -5,11 +5,9 @@ const signInButton = document.getElementById("sign");
     signInButton.addEventListener("click" , () => {
          chrome.runtime.sendMessage({
             message : "login"} ,  (response) => {
-
                 if(response.message === 'success'){
-                    
                     console.log("closing window");
-                  
+                    window.close();
                 }
             });    
         });
