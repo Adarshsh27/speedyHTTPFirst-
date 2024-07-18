@@ -214,12 +214,109 @@
 //     console.log(payload[key]);
 // }
 
-let url = [
-        { urlMatches: "https://example.com/*", methods: ["GET", "POST"] },
-        { urlMatches: "https://another.example.com/*", methods: ["POST"] },
-        { urlMatches: "https://third.example.com/api/*", methods: ["GET", "PUT"] }
-]
-console.log(typeof(url));
-console.log(url);
-console.log(typeof(url[0]));
-console.log(url[0]);
+// let url = [
+//         { urlMatches: "https://example.com/*", methods: ["GET", "POST"] },
+//         { urlMatches: "https://another.example.com/*", methods: ["POST"] },
+//         { urlMatches: "https://third.example.com/api/*", methods: ["GET", "PUT"] }
+// ]
+// console.log(typeof(url));
+// console.log(url);
+// console.log(typeof(url[0]));
+// console.log(url[0]);
+
+// console.log(Date.now()); // number of milliseconds elapsed from epoc 1610334435379
+
+// if(requestBodyString){
+//         let hash = sha256(getSimpleUrl(details.url));
+//         if(payloadFilter[hash] && payloadFilter[hash][details.method]){
+//           let originalObject = JSON.parse(requestBodyString);
+//           payload = payloadFilter[hash][details.method].reduce((obj, key) => {
+//            if (originalObject.hasOwnProperty(key)) {
+//                obj[key] = originalObject[key];
+//            }
+//            return obj;
+//        }, {});
+//         }
+// }
+// let url = "url4";
+
+// function getSimpleUrl(url){
+//         // Create a URL object
+       
+//         // console.log("here at hash ");
+//         // console.log(url);
+//         const urlObj = new URL(url);
+        
+//         // Extract the domain (hostname)
+//         const domain = urlObj.hostname;
+        
+//         // Extract the path
+//         const path = urlObj.pathname;
+        
+//          let simpleUrl = "*://";
+//          simpleUrl += domain + path + '*';
+//          return simpleUrl;
+     
+//      }
+     async function sha256(message) {
+        // Encode the message as an array of bytes
+        const msgBuffer = new TextEncoder().encode(message);
+      
+        // Hash the message
+        const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+      
+        // Convert the ArrayBuffer to a hex string
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        
+        return hashHex;
+    }     
+    
+// let u =  sha256("*://www.amazon.in/s/crid/dc/ds/i/k/ref/rh/rnid/sprefix");
+// console.log(url);
+sha256("*://developer.mozilla.org/en-US/docs/Web/API/Response/json*").then(hash => console.log(hash));
+
+
+//     let json = `{
+//         "method": "GET",
+//         "url": "https://developer.chrome.com/docs/extensions/reference/api/webRequest#type-RequestFilter",
+//         "responseTime": 642.6000000238419,
+//         "totalTime": 693.9000000953674,
+//         "timestamp": 1720862698839,
+//         "uid": "111890240202136979411"
+//       }`
+
+//       let payloadFilter = {
+//         "618b678c3605ddcffd20822146a543fd1d7fb89590fbe1d9035341a2dbf6884d" : {
+//                 "POST" : ["adarsh"]
+//         }
+//       };
+
+//       let originalObject = JSON.parse(json);
+// //       payload = new Map();
+//         payload = payloadFilter["618b678c3605ddcffd20822146a543fd1d7fb89590fbe1d9035341a2dbf6884d"]["POST"].reduce((obj, key) => {
+//          if (originalObject.hasOwnProperty(key)) {
+//              obj[key] = originalObject[key];
+//          }
+//          return obj;
+//      }, {});
+//      console.log(payload);
+
+// fetch(`http://localhost:8080/userEntry/` + 111890240202136979411, {
+//     method: 'DELETE',
+//     headers: {
+//         'Content-Type': 'application/json'
+//     },
+//     body : JSON.stringify("message")
+// })
+//     .then((response) => (response.json())).catch(error => {
+       
+//     }).then(data => {
+//         console.log(data);
+//     });
+let str = "https://space-qa6.sprinklr.com"
+let obj = new URL(str);
+console.log(obj.hostname);
+console.log(obj.pathname)
+
+console.log(Date(Date.now()));

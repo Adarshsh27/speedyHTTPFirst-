@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Notification Test</title>
+</head>
+<body>
+    <button id="notifyButton">Send Notification</button>
+    <script>
+        document.getElementById('notifyButton').addEventListener('click', () => {
+            if (Notification.permission === 'granted') {
+                new Notification('Test Notification', {
+                    body: 'This is a test notification message.',
+                    icon: 'icon.png'
+                });
+            } else if (Notification.permission !== 'denied') {
+                Notification.requestPermission().then(permission => {
+                    if (permission === 'granted') {
+                        new Notification('Test Notification', {
+                            body: 'This is a test notification message.',
+                            icon: 'icon.png'
+                        });
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

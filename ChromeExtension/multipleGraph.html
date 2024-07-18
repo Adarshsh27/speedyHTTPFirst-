@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Response Time Chart</title>
+    <style>
+        .input-container {
+            margin-bottom: 10px;
+        }
+        .input-group {
+            margin-bottom: 10px;
+        }
+        .input-button {
+            margin-left: 5px;
+        }
+        .json-box {
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <button id="addInput">Add Input</button>
+        <button id="resetZoomButton">Reset Zoom</button>
+        <button id="clearAllButton">Clear All</button>
+        <button id="bookmarkList">Bookmark List</button>
+    </div>
+    <div class="input-container"></div>
+    <canvas id="responseTimeChart" width="400" height="200"></canvas>
+    <div id="dataDetailsContainer"></div>
+
+    <!-- Include Chart.js library -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@1.1.1/dist/chartjs-plugin-zoom.min.js"></script>
+    <script>
+        // Initial data array
+        let datasets = [];
+        let colorIndex = 0;
+
+        // Color array for different datasets
+        const colors = ['blue', 'red', 'green', 'orange', 'purple', 'cyan'];
+
+        // Sample data for testing
+        const sampleData1 = [
+            { responseTime: 150, timestamp: 1622559600, id: '1', benchmarkTime: 120 },
+            { responseTime: 200, timestamp: 1622563200, id: '2', benchmarkTime: 120 },
+            { responseTime: 100, timestamp: 1622566800, id: '3', benchmarkTime: 120 },
+        ];
+        const sampleData2 = [
+            { responseTime: 180, timestamp: 1822559600, id: '4', benchmarkTime: 110 },
+            { responseTime: 220, timestamp: 1722563200, id: '5', benchmarkTime: 110 },
+            { responseTime: 130, timestamp: 1922566800, id: '6', benchmarkTime: 110 },
+            { responseTime: 130, timestamp: 1922566800, id: '6', benchmarkTime: 110 },
+            { responseTime: 130, timestamp: 1922566800, id: '6', benchmarkTime: 110 },
+            { responseTime: 130, timestamp: 1922566800, id: '6', benchmarkTime: 110 },
+            { responseTime: 130, timestamp: 1922566800, id: '6', benchmarkTime: 110 },
+        ];
+
+        // Function to create a new dataset object
+        function createDataset(data, color, label) {
+            return {
+                label: label,
+                data: data.map((d, index) => {
+                    return ({ x: index + 1, y: d.responseTime, id: d.id });
+                }),
+                borderColor: color,
+                borderWidth: 1,
+                pointRadius: 5,
+                pointHoverRadius: 8,
+                fill: false,
+                backgroundColor: color
+            };
+        }
+
+        const ctx = document.getElementById('responseTimeChart').getContext('2d');
+        const chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                datasets: datasets
+            },
+            options: {
+                scales: {
+                    x: {
+                        type: 'linear',
+                        title: {
+                            display: true,
+                            text: 'Index'
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Response Time (ms)'
+                        }
+                    }
+                },
+                plugins: {
+                    annotation: {
+                        annotations: []
+                    },
+                    zoom: {
+                        zoom: {
+                            wheel: {
+                                enabled: true,
+                            },
+                            pinch: {
+                                enabled: true
+                            },
+                            mode: 'xy',
+                        },
+                        pan: {
+                            enabled: true,
+                            mode: 'xy',
+                        }
+                    }
+                },
+                onClick: (e, elements) => {
+                    if (elements.length > 0) {
+                        const datasetIndex = elements[0].datasetIndex;
+                        const index = elements[0].index;
+                        const id = datasets[datasetIndex].data[index].id;
+
+                        // Simulate an API call to get JSON data
+                        fetch('http://localhost:8080/networkCalls/' + id ,  {
+                            method: 'GET',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            const jsonData = JSON.stringify(data , null, 2);
+                            addJsonDetails(jsonData);
+                        })
+                        .catch(error => console.log(error));
+                    }
+                }
+            }
+        });
+
+        document.getElementById('addInput').addEventListener('click', () => {
+            const container = document.createElement('div');
+            container.classList.add('input-group');
+
+            const urlInput = document.createElement('input');
+            urlInput.placeholder = 'Enter URL';
+            urlInput.classList.add("inputUrl");
+
+            const methodInput = document.createElement('input');
+            methodInput.placeholder = 'Enter Method';
+            methodInput.classList.add("inputMethod");
+
+            const addButton = document.createElement('button');
+            addButton.textContent = 'Add';
+            addButton.classList.add('input-button');
+
+            const removeButton = document.createElement('button');
+            removeButton.textContent = '-';
+            removeButton.classList.add('input-button');
+
+            container.appendChild(urlInput);
+            container.appendChild(methodInput);
+            container.appendChild(addButton);
+            container.appendChild(removeButton);
+            document.querySelector('.input-container').appendChild(container);
+
+            removeButton.addEventListener('click', () => {
+                const index = Array.from(document.querySelectorAll('.input-container .input-group')).indexOf(container);
+                datasets.splice(index, 1);
+                updateChart();
+                container.remove();
+            });
+
+            addButton.addEventListener('click', () => {
+                // Simulate fetching data from an API using the URL and method
+                // Replace this with actual API call later
+                let data;
+                if (urlInput.value === 'example1') {
+                    data = sampleData1;
+                } else if (urlInput.value === 'example2') {
+                    data = sampleData2;
+                } else {
+                    alert("Use 'example1' or 'example2' for sample data");
+                    return;
+                }
+
+                const color = colors[colorIndex % colors.length];
+                colorIndex++;
+                const newDataset = createDataset(data, color, `Dataset ${colorIndex}`);
+                datasets.push(newDataset);
+                updateChart();
+            });
+        });
+
+        var user_info = {
+            uid: '',
+            name: ''
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            chrome.runtime.sendMessage({
+                message: 'load'
+            }, async (response) => {
+                user_info.uid = response.uid;
+                user_info.name = response.name;
+                if (response.uid == undefined) {
+                    chrome.runtime.sendMessage({
+                        message: "timed_out"
+                    }, (response) => {
+                        window.close();
+                    })
+                }
+            });
+        });
+        document.getElementById('bookmarkList').addEventListener('click', () => {
+            chrome.windows.create({
+                url: chrome.runtime.getURL('./removeURL.html'),
+                type: 'popup',
+                width: 400,
+                height: 300
+            });
+        });
+
+        document.getElementById('resetZoomButton').addEventListener('click', () => {
+            chart.resetZoom();
+        });
+
+        document.getElementById('clearAllButton').addEventListener('click', () => {
+            document.getElementById('dataDetailsContainer').innerHTML = '';
+            datasets = [];
+            updateChart();
+        });
+
+        function updateChart() {
+            chart.data.datasets = datasets;
+            chart.update();
+        }
+
+        function addJsonDetails(jsonData) {
+            const jsonBox = document.createElement('div');
+            jsonBox.classList.add('json-box');
+
+            const pre = document.createElement('pre');
+            pre.textContent = jsonData;
+
+            const clearButton = document.createElement('button');
+            clearButton.textContent = 'Clear';
+
+            clearButton.addEventListener('click', () => {
+                jsonBox.remove();
+            });
+
+            jsonBox.appendChild(pre);
+            jsonBox.appendChild(clearButton);
+            document.getElementById('dataDetailsContainer').appendChild(jsonBox);
+        }
+    </script>
+</body>
+</html>

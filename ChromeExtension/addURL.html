@@ -1,0 +1,378 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTTP Method and Payload Filter</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .hidden {
+            display: none;
+        }
+        .popup {
+            border: 1px solid #000;
+            padding: 10px;
+            margin-top: 10px;
+        }
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #f9f9f9;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1;
+        }
+        .dropdown-content div {
+            color: black;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+        }
+        .dropdown-content div:hover {
+            background-color: #f1f1f1;
+        }
+        .dropdown-content div.selected {
+            background-color: #d9d9d9;
+        }
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+        .method-tags {
+            margin-top: 10px;
+        }
+        .method-tag {
+            display: inline-block;
+            background-color: #d9d9d9;
+            padding: 5px;
+            margin-right: 5px;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>HTTP Method and Payload Filter</h1>
+
+    <form id="methodForm">
+        <label for="urlInput">URL:</label>
+        <input type="text" id="urlInput" name="url" required><br><br>
+
+        <div class="dropdown">
+            <button type="button">HTTP Method</button>
+            <div class="dropdown-content" id="methodSelect">
+                <div data-value="GET">GET</div>
+                <div data-value="POST">POST</div>
+                <div data-value="PUT">PUT</div>
+                <div data-value="DELETE">DELETE</div>
+                <div data-value="PATCH">PATCH</div>
+                <div data-value="OPTIONS">OPTIONS</div>
+                <div data-value="UPDATE">UPDATE</div>
+            </div>
+        </div><br><br>
+
+        <div id="selectedMethods" class="method-tags"></div>
+
+        <div id="popup" class="hidden popup">
+            <label for="payloadFilterInput">Add Payload Filter:</label>
+            <input type="text" id="payloadFilterInput" name="payloadFilter">
+            <button type="button" onclick="addPayloadFilter()">Add</button><br><br>
+
+            <div id="filtersContainer">
+                <h3>Current Filters:</h3>
+                <ul id="filtersList"></ul>
+            </div>
+        </div>
+
+        <button type="button" onclick="submitForm()">Submit</button>
+    </form>
+
+    <div id="result" class="hidden">
+        <h2>Submitted Data</h2>
+        <pre id="resultData"></pre>
+    </div>
+
+    <script>
+        let selectedMethods = [];
+        let currentFilters = [];
+
+        document.querySelectorAll('#methodSelect div').forEach(item => {
+            item.addEventListener('click', function() {
+                const method = this.getAttribute('data-value');
+
+                if (selectedMethods.includes(method)) {
+                    selectedMethods = selectedMethods.filter(m => m !== method);
+                    this.classList.remove('selected');
+                } else {
+                    selectedMethods.push(method);
+                    this.classList.add('selected');
+                }
+
+                updateSelectedMethods();
+                togglePopup();
+            });
+        });
+
+        function updateSelectedMethods() {
+            const selectedMethodsContainer = document.getElementById('selectedMethods');
+            selectedMethodsContainer.innerHTML = '';
+
+            selectedMethods.forEach(method => {
+                const span = document.createElement('span');
+                span.classList.add('method-tag');
+                span.textContent = method;
+                selectedMethodsContainer.appendChild(span);
+            });
+        }
+
+        function togglePopup() {
+            const popup = document.getElementById('popup');
+            if (selectedMethods.includes('POST') || selectedMethods.includes('PUT')) {
+                popup.classList.remove('hidden');
+            } else {
+                popup.classList.add('hidden');
+                currentFilters = [];
+                updateFiltersList();
+            }
+        }
+
+        function addPayloadFilter() {
+            const filterInput = document.getElementById('payloadFilterInput');
+            const filterValue = filterInput.value.trim();
+
+            if (filterValue && !currentFilters.includes(filterValue)) {
+                currentFilters.push(filterValue);
+                updateFiltersList();
+                filterInput.value = '';
+            }
+        }
+
+        function updateFiltersList() {
+            const filtersList = document.getElementById('filtersList');
+            filtersList.innerHTML = '';
+            currentFilters.forEach(filter => {
+                const li = document.createElement('li');
+                li.textContent = filter;
+                filtersList.appendChild(li);
+            });
+        }
+
+        function submitForm() {
+            const url = document.getElementById('urlInput').value;
+            const postPayloadFilters = selectedMethods.includes('POST') ? currentFilters : [];
+            const putPayloadFilters = selectedMethods.includes('PUT') ? currentFilters : [];
+
+            const result = {
+                url: url,
+                methods: selectedMethods,
+                putPayloadFilters: putPayloadFilters,
+                postPayloadFilters: postPayloadFilters
+            };
+
+            document.getElementById('resultData').textContent = JSON.stringify(result, null, 2);
+            document.getElementById('result').classList.remove('hidden');
+        }
+    </script>
+
+</body>
+</html>
+
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTTP Method and Payload Filter</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .hidden {
+            display: none;
+        }
+        .popup {
+            border: 1px solid #000;
+            padding: 10px;
+            margin-top: 10px;
+        }
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        .dropdown button {
+            background-color: #f9f9f9;
+            border: 1px solid #ccc;
+            padding: 10px;
+            cursor: pointer;
+        }
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #f9f9f9;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1;
+        }
+        .dropdown-content div {
+            color: black;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            cursor: pointer;
+        }
+        .dropdown-content div:hover {
+            background-color: #f1f1f1;
+        }
+        .dropdown-content div.selected {
+            background-color: #d9d9d9;
+        }
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+        .method-tags {
+            margin-top: 10px;
+        }
+        .method-tag {
+            display: inline-block;
+            background-color: #d9d9d9;
+            padding: 5px;
+            margin-right: 5px;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>HTTP Method and Payload Filter</h1>
+
+    <form id="methodForm">
+        <label for="urlInput">URL:</label>
+        <input type="text" id="urlInput" name="url" required><br><br>
+
+        <div class="dropdown">
+            <button type="button">HTTP Method</button>
+            <div class="dropdown-content" id="methodSelect">
+                <div data-value="GET">GET</div>
+                <div data-value="POST">POST</div>
+                <div data-value="PUT">PUT</div>
+                <div data-value="DELETE">DELETE</div>
+                <div data-value="PATCH">PATCH</div>
+                <div data-value="OPTIONS">OPTIONS</div>
+                <div data-value="UPDATE">UPDATE</div>
+            </div>
+        </div><br><br>
+
+        <div id="selectedMethods" class="method-tags"></div>
+
+        <div id="popup" class="hidden popup">
+            <label for="payloadFilterInput">Add Payload Filter:</label>
+            <input type="text" id="payloadFilterInput" name="payloadFilter">
+            <button type="button" onclick="addPayloadFilter()">Add</button><br><br>
+
+            <div id="filtersContainer">
+                <h3>Current Filters:</h3>
+                <ul id="filtersList"></ul>
+            </div>
+        </div>
+
+        <button type="button" onclick="submitForm()">Submit</button>
+    </form>
+
+    <div id="result" class="hidden">
+        <h2>Submitted Data</h2>
+        <pre id="resultData"></pre>
+    </div>
+
+    <script>
+        let selectedMethods = [];
+        let currentFilters = [];
+
+        document.querySelectorAll('#methodSelect div').forEach(item => {
+            item.addEventListener('click', function() {
+                const method = this.getAttribute('data-value');
+
+                if (selectedMethods.includes(method)) {
+                    selectedMethods = selectedMethods.filter(m => m !== method);
+                    this.classList.remove('selected');
+                } else {
+                    selectedMethods.push(method);
+                    this.classList.add('selected');
+                }
+
+                updateSelectedMethods();
+                togglePopup();
+            });
+        });
+
+        function updateSelectedMethods() {
+            const selectedMethodsContainer = document.getElementById('selectedMethods');
+            selectedMethodsContainer.innerHTML = '';
+
+            selectedMethods.forEach(method => {
+                const span = document.createElement('span');
+                span.classList.add('method-tag');
+                span.textContent = method;
+                selectedMethodsContainer.appendChild(span);
+            });
+        }
+
+        function togglePopup() {
+            const popup = document.getElementById('popup');
+            if (selectedMethods.includes('POST') || selectedMethods.includes('PUT')) {
+                popup.classList.remove('hidden');
+            } else {
+                popup.classList.add('hidden');
+                currentFilters = [];
+                updateFiltersList();
+            }
+        }
+
+        function addPayloadFilter() {
+            const filterInput = document.getElementById('payloadFilterInput');
+            const filterValue = filterInput.value.trim();
+
+            if (filterValue && !currentFilters.includes(filterValue)) {
+                currentFilters.push(filterValue);
+                updateFiltersList();
+                filterInput.value = '';
+            }
+        }
+
+        function updateFiltersList() {
+            const filtersList = document.getElementById('filtersList');
+            filtersList.innerHTML = '';
+            currentFilters.forEach(filter => {
+                const li = document.createElement('li');
+                li.textContent = filter;
+                filtersList.appendChild(li);
+            });
+        }
+
+        function submitForm() {
+            const url = document.getElementById('urlInput').value;
+            const postPayloadFilters = selectedMethods.includes('POST') ? currentFilters : [];
+            const putPayloadFilters = selectedMethods.includes('PUT') ? currentFilters : [];
+
+            const result = {
+                url: url,
+                methods: selectedMethods,
+                putPayloadFilters: putPayloadFilters,
+                postPayloadFilters: postPayloadFilters
+            };
+
+            document.getElementById('resultData').textContent = JSON.stringify(result, null, 2);
+            document.getElementById('result').classList.remove('hidden');
+        }
+    </script>
+
+</body>
+</html> -->
+

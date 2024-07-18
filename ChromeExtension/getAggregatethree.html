@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Dropdown Example</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+        }
+        .container {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 400px;
+        }
+        .dropdown-container {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        select {
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            width: 48%;
+        }
+        #result {
+            padding: 10px;
+            font-size: 16px;
+            background: #e7f3ff;
+            border-radius: 4px;
+            border: 1px solid #b6d4fe;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="dropdown-container">
+            <select id="selectUrl">
+                <option value="">Select URL</option>
+                <!-- Options will be populated through API call -->
+            </select>
+            <select id="selectMethod">
+                <option value="">Select Method</option>
+                <!-- Options will be populated through API call -->
+            </select>
+        </div>
+        <div id="result">Result will be shown here</div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const selectUrl = document.getElementById('selectUrl');
+            const selectMethod = document.getElementById('selectMethod');
+            const result = document.getElementById('result');
+
+            // Simulate API calls to populate dropdowns
+            const urls = ['https://api.example.com/data1', 'https://api.example.com/data2', 'https://api.example.com/data3'];
+            const methods = ['GET', 'POST', 'PUT', 'DELETE'];
+
+            urls.forEach(url => {
+                const option = document.createElement('option');
+                option.value = url;
+                option.textContent = url;
+                selectUrl.appendChild(option);
+            });
+
+            methods.forEach(method => {
+                const option = document.createElement('option');
+                option.value = method;
+                option.textContent = method;
+                selectMethod.appendChild(option);
+            });
+
+            // Event listener to display result when both selections are made
+            selectUrl.addEventListener('change', displayResult);
+            selectMethod.addEventListener('change', displayResult);
+
+            function displayResult() {
+                if (selectUrl.value && selectMethod.value) {
+                    result.textContent = `URL: ${selectUrl.value}, Method: ${selectMethod.value}`;
+                }
+            }
+        });
+    </script>
+</body>
+</html>

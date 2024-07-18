@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Response Time Chart</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            margin: 20px;
+        }
+
+        h1 {
+            color: #007bff;
+            text-align: center;
+        }
+
+        #chartContainer {
+            position: relative;
+            height: 500px;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        #dataDetails {
+            margin-top: 20px;
+        }
+
+        .json-box {
+            border: 1px solid #ccc;
+            background-color: #fafafa;
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        .json-box pre {
+            margin: 0;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .json-box button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 3px 6px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        #clearAllButton, button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 14px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        #chartContainer {
+            justify-content: center;
+            align-items: center;
+            display: flex;
+            margin: 0 auto;
+        }
+
+        #responseTimeChart {
+            align-items: center;
+        }
+
+        #clearAllButton:hover {
+            background-color: #0056b3;
+        }
+
+        #buttonContainer {
+            justify-content: center;
+            align-items: center;
+            display: flex;
+            margin: 0 auto;
+        }
+
+        .input-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .input-button{
+            margin-bottom: 20px ;
+        }
+        .input-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            width: 100%;
+            justify-content: center;
+        }
+
+        .input-group select {
+            padding: 5px;
+            font-size: 14px;
+            margin-right: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            width: 200px;
+        }
+
+        .input-group button {
+            padding: 5px 10px;
+            font-size: 14px;
+            margin-right: 10px;
+        }
+        #resetZoomButton {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        #bookmarkList {
+            position: fixed;
+            bottom: 10px;
+            left: 10px;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        #bookmarkList:hover {
+            background-color: #0056b3;
+        }
+        
+        #resetZoomButton:hover {
+            background-color: #0056b3;
+        }
+        
+        #clearAllButton{
+            display: block;
+        }
+        #superImpose{
+            position: absolute;
+            bottom: 10px;
+            right: 46%;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+    </style>
+</head>
+<body>
+    <h1>Response Time Chart</h1>
+    <button id="addInput">+</button>
+    <div class="input-container"></div>
+    <div id="chartContainer">
+        <canvas id="responseTimeChart"></canvas>
+    </div>
+    <button id="resetZoomButton">Reset Zoom</button>
+    <button id="bookmarkList">Check Bookmarked List</button>
+    <div id="dataDetailsContainer"></div>
+    <div id="buttonContainer">
+        <button id="clearAllButton">Clear All</button>
+        <button id="superImpose"> SuperImpose </button>
+    </div>
+
+    <!-- Include Chart.js, date adapter, annotation plugin, and zoom plugin -->
+    <script src="./chart.js"></script>
+    <script src="./chartjs-adapter-date-fns.js"></script>
+    <script src="./chartjs-plugin-annotation.js"></script>
+    <script src="./chartjs-plugin-zoom.js"></script>
+    <script src="./multiGraphWithSlidingMedian.js"></script>
+    <!-- <script src="./aaaaaaaGraph.js"></script> -->
+</body>
+</html>

@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Response Time Chart</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            margin: 20px;
+        }
+
+        h1 {
+            color: #007bff;
+            text-align: center;
+        }
+
+        #chartContainer {
+            position: relative;
+            height: 500px;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        #dataDetails {
+            margin-top: 20px;
+        }
+        #methodOption{
+            width: 140px;
+        }
+        .json-box {
+            border: 1px solid #ccc;
+            background-color: #fafafa;
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        .json-box pre {
+            margin: 0;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .json-box button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 3px 6px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        #clearAllButton , button{
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 14px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        #chartContainer{
+            justify-content: center;
+            align-items: center;
+            display: flex;
+            margin: 0 auto;
+        }
+        #responseTimeChart{
+            align-items: center;
+        }
+        #clearAllButton:hover {
+            background-color: #0056b3;
+        }
+        .input-group input {
+            padding: 5px;
+            font-size: 14px;
+            margin-right: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            width: 200px;
+        }
+        #buttonContainer{
+            justify-content: center;
+            align-items: center;
+            display: flex;
+            margin: 0 auto;
+        }
+        #inputContainer{
+            justify-content: center;
+            align-items: center;
+            display: flex;
+            margin: 0 auto;
+        }
+        .input-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .input-group select {
+            padding: 8px;
+            font-size: 14px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            flex: 1;
+        }
+      
+
+        #urlSelect, #methodSelect {
+            margin-right: 10px;
+            width: 40%;
+            height: 30px;
+        }
+
+        #bookmarkList {
+            position: fixed;
+            bottom: 10px;
+            left: 10px;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        #bookmarkList:hover , #resetZoomButton:hover {
+            background-color: #0056b3;
+        }
+        #resetZoomButton {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        #inputContainer {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        #submitUrl{
+            margin-bottom: 30px;
+        }
+        #urlSelect{
+            width: 80%;
+        }
+        #methodSelect{
+            width: 20%;
+        }
+        .legend-box {
+            position: fixed;
+            top: 30%;
+            left: 70px;
+            background-color: white;
+            border: 1px solid #ddd;
+            padding: 20px;
+            box-shadow: 4px 0px 2px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+
+        }
+        
+        .legend-box p {
+            margin: 1px;
+            font-size: 16px;
+
+        }
+        
+        .legend-color {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            margin-left: 5px;
+            vertical-align: middle;
+        }
+        .hidden{
+            display: none;
+        }
+        span{
+            margin-right: 7px;
+        }
+        
+    </style>
+</head>
+<body>
+    <h1>Response Time Chart</h1>
+    <div id="inputContainer">
+        <select id="urlSelect" class="input-group">
+            <option value="" disabled selected>Select URL</option>
+        </select>
+        <select id="methodSelect" class="input-group" style="display:none;">
+            <option value="" disabled selected>Select Method</option>
+        </select>
+        <button id="submitUrl">Track</button> 
+        <!--- legends boxx-->
+        <div id="legendBox" class="legend-box hidden">
+            <p class="innerText"><span class="legend-color" style="background-color: red   ;   "></span>Max Response Time</p>
+            <p class="innerText"><span class="legend-color" style="background-color: orange  ;   "></span>Benchmark Time</p>
+            <p class="innerText"><span class="legend-color" style="background-color: green ;   "></span>Min Response Time</p>
+        </div>  
+    </div>
+    <div id="chartContainer">
+        <canvas id="responseTimeChart"></canvas>
+    </div>
+    <div id="dataDetails"></div>
+    <div id="buttonContainer">
+        <button id="clearAllButton">Clear All</button>
+    </div>
+    <div id="buttonContainer">
+        <button id="compareButton">Compare Graphs</button>
+    </div>
+    <button id="resetZoomButton">Reset Zoom</button>
+    <button id="bookmarkList">Check Bookmarked List</button>
+    <!-- Include Chart.js, date adapter, annotation plugin, and zoom plugin -->
+    <script src="./chart.js"></script>
+    <script src="./chartjs-adapter-date-fns.js"></script>
+    <script src="./chartjs-plugin-annotation.js"></script>
+    <script src="./chartjs-plugin-zoom.js"></script>
+    <script src="./graphFinal.js"></script>
+</body>
+</html>

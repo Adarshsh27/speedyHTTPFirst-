@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTTP Method and Payload Filter</title>
+    <style>
+        /* Your existing styles here */
+    </style>
+</head>
+<body>
+
+    <h1>HTTP Method and Payload Filter</h1>
+
+    <form id="methodForm">
+        <label for="urlInput">URL:</label>
+        <input type="text" id="urlInput" name="url" required><br><br>
+
+        <div class="dropdown">
+            <button type="button">HTTP Method</button>
+            <div class="dropdown-content" id="methodSelect">
+                <div data-value="GET">GET</div>
+                <div data-value="POST">POST</div>
+                <div data-value="PUT">PUT</div>
+                <div data-value="DELETE">DELETE</div>
+                <div data-value="PATCH">PATCH</div>
+                <div data-value="OPTIONS">OPTIONS</div>
+                <div data-value="UPDATE">UPDATE</div>
+            </div>
+        </div><br><br>
+
+        <div id="selectedMethods" class="method-tags"></div>
+        
+        <!-- Popup template -->
+        <div id="postPopup" class="hidden popup">
+            <label for="postPayloadKey">Add Payload Filter for POST:</label>
+            <input type="text" id="postPayloadKey" class="payloadFilterInput" name="payloadKey" placeholder="Key">
+            <input type="text" id="postPayloadValue" class="payloadFilterInput" name="payloadValue" placeholder="Value">
+            <button type="button" id="postAddPayload">Add</button>
+            <button type="button" id="clearPostPayload">Clear</button>
+            <button type="button" id="postHidePopup">OK</button><br><br>
+
+            <div id="filtersContainer">
+                <h3>Current Filters for POST:</h3>
+                <ul id="postFiltersList"></ul>
+            </div>
+        </div>
+        <!-- Repeat the same structure for other methods like PUT, DELETE, etc. -->
+
+        <button type="button" id="addQueryButton">Add Query</button>
+        <div id="queryPopup" class="hidden popup">
+            <label for="queryKeyInput">Query Key:</label>
+            <input type="text" id="queryKeyInput" class="queryInput" name="queryKey"><br><br>
+            <label for="queryValueInput">Query Value:</label>
+            <input type="text" id="queryValueInput" class="queryInput" name="queryValue">
+            <button type="button" id="addQueryKeyValue">Add</button>
+            <button type="button" id="clearQuery">Clear</button>
+            <button type="button" id="hideQueryPopup">OK</button><br><br>
+
+            <div id="queryContainer">
+                <h3>Current Query Parameters:</h3>
+                <ul id="queryList"></ul>
+            </div>
+        </div>
+
+        <button type="button" id="submitForm">Submit</button>
+    </form>
+
+    <div id="result" class="hidden">
+        <h2>Submitted Data</h2>
+        <pre id="resultData"></pre>
+    </div>
+
+    <script src="./addSevenURL.js"></script>
+
+</body>
+</html>

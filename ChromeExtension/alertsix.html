@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Network Call Analysis</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            margin: 20px;
+        }
+
+        h2 {
+            color: #007bff;
+        }
+
+        .section {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-bottom: 10px;
+            position: relative;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .section-header {
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .clear-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: red;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        .details {
+            margin-top: 10px;
+        }
+
+        .details .btn {
+            display: block;
+            margin: 10px 0;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+
+        .two-columns {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .column {
+            width: 48%;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            padding: 10px;
+        }
+
+        .message-box {
+            background-color: #f0f0f0;
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-top: 10px;
+        }
+
+        .section-container {
+            margin-bottom: 20px;
+        }
+
+        .show-more-btn {
+            display: block;
+            margin: 10px auto;
+            padding: 10px;
+            cursor: pointer;
+        }
+
+        .button2 {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<div id="benchmark-container" class="section-container hidden">
+    <h2 id="benchmark-heading">Failed Benchmark</h2>
+    <div id="benchmark-sections"></div>
+    <button id="benchmark-show-more" class="show-more-btn button2 hidden">Show More</button>
+</div>
+
+<div id="validation-container" class="section-container hidden">
+    <h2 id="validation-heading">Failed Validation</h2>
+    <div id="validation-sections"></div>
+    <button id="validation-show-more" class="show-more-btn button2 hidden">Show More</button>
+</div>
+
+<script>
+    const MAX_VISIBLE_SECTIONS = 2;
+
+    function toggleSection(section) {
+        section.classList.toggle('hidden');
+    }
+
+    function showDifferences(extraQueryParams, differentQueryParams) {
+        const differencesSection = document.createElement('div');
+        differencesSection.className = 'two-columns differences-section';
+
+        const extraParamsColumn = document.createElement('div');
+        extraParamsColumn.className = 'column';
+        extraParamsColumn.innerHTML = `<h3>Extra Query Params</h3>`;
+        if (extraQueryParams.length > 0) {
+            extraQueryParams.forEach(param => {
+                extraParamsColumn.innerHTML += `<p>${param.key}: ${param.value}</p>`;
+            });
+        } else {
+            extraParamsColumn.innerHTML += `<p>No extra query parameters.</p>`;
+        }
+
+        const differentParamsColumn = document.createElement('div');
+        differentParamsColumn.className = 'column';
+        differentParamsColumn.innerHTML = `<h3>Different Query Params</h3>`;
+        if (differentQueryParams.length > 0) {
+            differentQueryParams.forEach(param => {
+                differentParamsColumn.innerHTML += `<p>${param.key}: ${param.value}</p>`;
+            });
+        } else {
+            differentParamsColumn.innerHTML += `<p>No different query parameters.</p>`;
+        }
+
+        differencesSection.appendChild(extraParamsColumn);
+        differencesSection.appendChild(differentParamsColumn);
+
+        if (extraQueryParams.length === 0 && differentQueryParams.length === 0) {
+            const identicalMessage = document.createElement('div');
+            identicalMessage.className = 'message-box';
+            identicalMessage.innerHTML = "<p>Call is identical to the benchmark. There must be an issue in the backend.</p>";
+            differencesSection.appendChild(identicalMessage);
+        }
+
+        return differencesSection;
+    }
+
+    function showIdealCallDetails(idealCall, extraQueryParams, differentQueryParams) {
+        const idealDetailsSection = document.createElement('div');
+        idealDetailsSection.className = 'details-ideal details';
+
+        idealDetailsSection.innerHTML = `
+            <p><strong>Response Time:</strong> ${idealCall.callMetrics.responseTime} ms</p>
+            <p><strong>Query Parameters:</strong></p>
+            <ul>
+                ${Object.entries(idealCall.query).map(([key, value]) => `<li>${key}: ${value}</li>`).join('')}
+            </ul>
+            <p><strong>Payload:</strong></p>
+            <ul>
+                ${Object.entries(idealCall.payloadMap).map(([key, value]) => `<li>${key}: ${value}</li>`).join('')}
+            </ul>
+        `;
+
+        const showDifferencesButton = document.createElement('button');
+        showDifferencesButton.className = 'btn';
+        showDifferencesButton.innerText = 'Show Differences';
+        showDifferencesButton.addEventListener('click', (event) => {
+            event.stopPropagation();
+            const differencesSection = idealDetailsSection.querySelector('.differences-section');
+            if (differencesSection) {
+                differencesSection.remove();
+                showDifferencesButton.innerText = 'Show Differences';
+            } else {
+                const newDifferencesSection = showDifferences(extraQueryParams, differentQueryParams);
+                idealDetailsSection.appendChild(newDifferencesSection);
+                showDifferencesButton.innerText = 'Hide Differences';
+            }
+        });
+
+        idealDetailsSection.appendChild(showDifferencesButton);
+
+        return idealDetailsSection;
+    }
+
+    function showCallDetails(call, idealCall, extraQueryParams, differentQueryParams) {
+        const detailsSection = document.createElement('div');
+        detailsSection.className = 'details';
+
+        const percentageDeviation = ((call.callMetrics.responseTime - idealCall.callMetrics.responseTime) / idealCall.callMetrics.responseTime) * 100;
+
+        detailsSection.innerHTML = `
+            <p><strong>Response Time:</strong> ${call.callMetrics.responseTime} ms</p>
+            <p><strong>Query Parameters:</strong></p>
+            <ul>
+                ${Object.entries(call.query).map(([key, value]) => `<li>${key}: ${value}</li>`).join('')}
+            </ul>
+            <p><strong>Payload:</strong></p>
+            <ul>
+                ${Object.entries(call.payloadMap).map(([key, value]) => `<li>${key}: ${value}</li>`).join('')}
+            </ul>
+            <p><strong>Percentage Deviation from Ideal Response Time:</strong> ${percentageDeviation.toFixed(2)}%</p>
+        `;
+
+        const showIdealButton = document.createElement('button');
+        showIdealButton.className = 'btn';
+        showIdealButton.innerText = 'Show Ideal Call Details';
+        showIdealButton.addEventListener('click', (event) => {
+            event.stopPropagation();
+            const idealDetailsSection = detailsSection.querySelector('.details-ideal');
+            if (idealDetailsSection) {
+                idealDetailsSection.remove();
+                showIdealButton.innerText = 'Show Ideal Call Details';
+            } else {
+                const newIdealDetailsSection = showIdealCallDetails(idealCall, extraQueryParams, differentQueryParams);
+                detailsSection.appendChild(newIdealDetailsSection);
+                showIdealButton.innerText = 'Hide Ideal Call Details';
+            }
+        });
+
+        detailsSection.appendChild(showIdealButton);
+
+        return detailsSection;
+    }
+
+    function showValidationFailures(url, missingQueryParams, missingPayload) {
+        const validationSection = document.createElement('div');
+        validationSection.className = 'two-columns';
+
+        const missingQueryParamsColumn = document.createElement('div');
+        missingQueryParamsColumn.className = 'column';
+        missingQueryParamsColumn.innerHTML = `<h3>Missing Query Params</h3>`;
+        if (missingQueryParams.length > 0) {
+            missingQueryParams.forEach(param => {
+                missingQueryParamsColumn.innerHTML += `<p>${param}</p>`;
+            });
+        } else {
+            missingQueryParamsColumn.innerHTML += `<p>No missing query parameters.</p>`;
+        }
+
+        const missingPayloadColumn = document.createElement('div');
+        missingPayloadColumn.className = 'column';
+        missingPayloadColumn.innerHTML = `<h3>Missing Payload</h3>`;
+        if (missingPayload.length > 0) {
+            missingPayload.forEach(param => {
+                missingPayloadColumn.innerHTML += `<p>${param}</p>`;
+            });
+        } else {
+            missingPayloadColumn.innerHTML += `<p>No missing payload values.</p>`;
+        }
+
+        validationSection.appendChild(missingQueryParamsColumn);
+        validationSection.appendChild(missingPayloadColumn);
+
+        return validationSection;
+    }
+
+    function createCallEntrySection(call, idealCall, extraQueryParams, differentQueryParams) {
+        const section = document.createElement('div');
+        section.className = 'section';
+
+        const header = document.createElement('div');
+        header.className = 'section-header';
+        header.innerText = call.url;
+        header.addEventListener('click', () => toggleSection(details));
+
+        const clearButton = document.createElement('button');
+        clearButton.className = 'clear-btn';
+        clearButton.innerText = 'Clear';
+        clearButton.addEventListener('click', (event) => {
+            event.stopPropagation();
+            section.remove();
+        });
+
+        header.appendChild(clearButton);
+        section.appendChild(header);
+
+        const details = showCallDetails(call, idealCall, extraQueryParams, differentQueryParams);
+        details.classList.add('hidden');
+        section.appendChild(details);
+
+        return section;
+    }
+
+    function createValidationEntrySection(url, missingQueryParams, missingPayload) {
+        const section = document.createElement('div');
+        section.className = 'section';
+
+        const header = document.createElement('div');
+        header.className = 'section-header';
+        header.innerText = url;
+        header.addEventListener('click', () => toggleSection(details));
+
+        const clearButton = document.createElement('button');
+        clearButton.className = 'clear-btn';
+        clearButton.innerText = 'Clear';
+        clearButton.addEventListener('click', (event) => {
+            event.stopPropagation();
+            section.remove();
+        });
+
+        header.appendChild(clearButton);
+        section.appendChild(header);
+
+        const details = showValidationFailures(url, missingQueryParams, missingPayload);
+        details.classList.add('hidden');
+        section.appendChild(details);
+
+        return section;
+    }
+
+    function displayCalls(containerId, calls, type) {
+        const container = document.getElementById(containerId);
+        const sectionsContainer = container.querySelector('.section-container');
+        const showMoreButton = container.querySelector('.show-more-btn');
+
+        calls.forEach((call, index) => {
+            let section;
+            if (type === 'benchmark') {
+                section = createCallEntrySection(call.badCall, call.idealCall, call.extraQueryParams, call.differentQueryParams);
+            } else if (type === 'validation') {
+                section = createValidationEntrySection(call.url, call.missingQueryParams, call.missingPayload);
+            }
+            sectionsContainer.appendChild(section);
+
+            if (index >= MAX_VISIBLE_SECTIONS) {
+                section.classList.add('hidden');
+            }
+        });
+
+        if (calls.length > MAX_VISIBLE_SECTIONS) {
+            showMoreButton.classList.remove('hidden');
+            showMoreButton.addEventListener('click', () => {
+                const hiddenSections = sectionsContainer.querySelectorAll('.section.hidden');
+                hiddenSections.forEach((section, index) => {
+                    if (index < MAX_VISIBLE_SECTIONS) {
+                        section.classList.remove('hidden');
+                    }
+                });
+
+                if (hiddenSections.length <= MAX_VISIBLE_SECTIONS) {
+                    showMoreButton.classList.add('hidden');
+                }
+            });
+        } else {
+            showMoreButton.classList.add('hidden');
+        }
+    }
+
+    const benchmarkCalls = [
+        {
+            badCall: {
+                url: "https://api.example.com/endpoint1",
+                query: { param1: "value1", param2: "value2" },
+                payloadMap: { key1: "val1", key2: "val2" },
+                callMetrics: { responseTime: 200 }
+            },
+            idealCall: {
+                url: "https://api.example.com/endpoint1",
+                query: { param1: "value1", param2: "value2" },
+                payloadMap: { key1: "val1", key2: "val2" },
+                callMetrics: { responseTime: 100 }
+            },
+            extraQueryParams: [],
+            differentQueryParams: []
+        },
+        {
+            badCall: {
+                url: "https://api.example.com/endpoint2",
+                query: { param3: "value3", param4: "value4" },
+                payloadMap: { key3: "val3", key4: "val4" },
+                callMetrics: { responseTime: 300 }
+            },
+            idealCall: {
+                url: "https://api.example.com/endpoint2",
+                query: { param3: "value3", param4: "value4" },
+                payloadMap: { key3: "val3", key4: "val4" },
+                callMetrics: { responseTime: 100 }
+            },
+            extraQueryParams: [],
+            differentQueryParams: []
+        }
+    ];
+
+    const validationCalls = [
+        {
+            url: "https://api.example.com/endpoint3",
+            missingQueryParams: ["param5", "param6"],
+            missingPayload: ["key5", "key6"]
+        },
+        {
+            url: "https://api.example.com/endpoint4",
+            missingQueryParams: ["param7", "param8"],
+            missingPayload: ["key7", "key8"]
+        }
+    ];
+
+    document.addEventListener('DOMContentLoaded', () => {
+        displayCalls('benchmark-container', benchmarkCalls, 'benchmark');
+        displayCalls('validation-container', validationCalls, 'validation');
+
+        const benchmarkContainer = document.getElementById('benchmark-container');
+        if (benchmarkCalls.length > 0) {
+            benchmarkContainer.classList.remove('hidden');
+        }
+
+        const validationContainer = document.getElementById('validation-container');
+        if (validationCalls.length > 0) {
+            validationContainer.classList.remove('hidden');
+        }
+    });
+</script>
+</body>
+</html>

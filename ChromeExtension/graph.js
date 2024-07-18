@@ -1,14 +1,39 @@
 // const { _connectToCdpBrowser } = require("puppeteer");
 
+var user_info = {
+  uid : '',
+  name : ''
+
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+   chrome.runtime.sendMessage({
+      message : 'load'
+  }, async (response) =>{
+      //  alert(response.uid);
+      //  alert(response.name);
+       user_info.uid = response.uid;
+       user_info.name = response.name;
+       console.log(user_info);
+       if(response.uid == undefined){
+        chrome.runtime.sendMessage({
+            message : "timed_out"
+        } , (response) =>{
+            window.close();
+        })
+    }
+  });
+});
 document.getElementById("urlSubmit").addEventListener("click" , ()=>{
     let url = document.getElementById("getUrl").value;
-    getHashId(url);
+    let method = document.getElementById("getMethod").value;
+    plot(url , method);
 })
 // plot("https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener");
-async function plot(hashId){
+async function plot(url , method){
     document.body.style.width = 900 + 'px';
     document.body.style.height = 900 + 'px';
-    console.log("hashID : " + hashId);
+    console.log("hashID : " + url + " method : " + method);
     const apiEndpoint = 'http://localhost:8080/networkCalls/plot';
     fetch(
         apiEndpoint , {
@@ -17,7 +42,11 @@ async function plot(hashId){
                 'Content-Type':'application/json',
             },
             body : JSON.stringify({
-                urlHash : hashId
+              url : url,
+              method : method,
+              uid : user_info.uid,
+              flag : false
+                // urlHash : hashId
             })
         }
         )
@@ -88,7 +117,7 @@ async function sha256(message) {
     
     return hashHex;
 }
-async function getHashId(url){
+async function getHashId(url , method){
     const urlObj = new URL(url);
     
     // Extract the domain (hostname)
@@ -99,9 +128,10 @@ async function getHashId(url){
     
     // Extract query parameters
     const queryParams = new URLSearchParams(urlObj.search);
-    let urlToHash = "";
+    let urlToHash = "*://";
     urlToHash += domain;
     urlToHash += path;
+    urlToHash += "*/";
     
     // Convert query parameters to an object
     // const queryParamsObj = {};
@@ -116,11 +146,22 @@ async function getHashId(url){
     
     
     // Sort the keys
+    let flag = false;
     const sortedKeys = Array.from(queryParamsMap.keys()).sort();
     sortedKeys.forEach(x =>{
-        urlToHash += x;
+        urlToHash += x + "/";
+        flag = true;
     });
 
+    if(flag === true){
+     urlToHash = urlToHash.slice(0, -1);
+  
+    }
+    
+    urlToHash += "/" + method;
+   
+    console.log("our final urlToHash");
+    console.log(urlToHash);
       let hashId = sha256(urlToHash).then(value => {
         console.log("hashid we getting : " + value);
         plot(value);

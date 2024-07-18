@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expandable URLs and Methods</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            margin: 20px;
+        }
+
+        h1 {
+            color: #007bff;
+            text-align: center;
+        }
+
+        .section {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .section-header {
+            background-color: #007bff;
+            color: #fff;
+            padding: 15px;
+            cursor: pointer;
+            font-size: 18px;
+            transition: background-color 0.3s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .section-header:hover {
+            background-color: #0056b3;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .method-section {
+            background-color: #e9ecef;
+            padding: 10px;
+            border-top: 1px solid #ddd;
+        }
+
+        .method-header {
+            background-color: #17a2b8;
+            color: #fff;
+            padding: 10px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin: 10px 0;
+            transition: background-color 0.3s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .method-header:hover {
+            background-color: #117a8b;
+        }
+
+        .payload-section {
+            padding-left: 20px;
+            padding: 10px;
+        }
+
+        .payload {
+            background-color: #f9f9f9;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            transition: background-color 0.3s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .payload:hover {
+            background-color: #f1f1f1;
+        }
+
+        .remove-btn {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .remove-btn:hover {
+            background-color: #c82333;
+        }
+    </style>
+</head>
+<body>
+    <h1>URLs and Methods</h1>
+    <div id="container"></div>
+
+    <script>
+        async function sha256(message) {
+            const msgBuffer = new TextEncoder().encode(message);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+            return hashHex;
+        }
+
+        function toggleSection(sectionId) {
+            const section = document.getElementById(sectionId);
+            section.classList.toggle('hidden');
+        }
+
+        function removeElement(elementId) {
+            const element = document.getElementById(elementId);
+            const url = element.getAttribute('data-url');
+            const method = element.getAttribute('data-method');
+            const payload = element.getAttribute('data-payload');
+
+            if (payload) {
+                console.log(`Payload removed: ${payload} (Method: ${method}, URL: ${url})`);
+                // Send to database: payload, method, url
+            } else if (method) {
+                console.log(`Method removed: ${method} (URL: ${url})`);
+                // Send to database: method, url
+            } else if (url) {
+                console.log(`URL removed: ${url}`);
+                // Send to database: url
+            }
+
+            element.remove();
+        }
+
+        async function generateHtml(urls, urlToMethods, urlToMethodsToPayloads) {
+            const container = document.getElementById('container');
+            container.innerHTML = '';
+
+            for (let urlIndex = 0; urlIndex < urls.length; urlIndex++) {
+                const url = urls[urlIndex];
+                const urlHash = await sha256(url);
+                const urlId = `url${urlIndex}-section`;
+                const methodsId = `methods-${urlId}`;
+
+                const urlSection = document.createElement('div');
+                urlSection.id = urlId;
+                urlSection.className = 'section';
+                urlSection.setAttribute('data-url', url);
+
+                const urlHeader = document.createElement('div');
+                urlHeader.className = 'section-header';
+                urlHeader.setAttribute('data-methods-id', methodsId);
+                urlHeader.innerHTML = `
+                    ${url}
+                    <button class="remove-btn" data-url-id="${urlId}">Remove</button>
+                `;
+                urlSection.appendChild(urlHeader);
+
+                const methodsSection = document.createElement('div');
+                methodsSection.id = methodsId;
+                methodsSection.className = 'hidden method-section';
+
+                if (urlToMethods[urlHash]) {
+                    urlToMethods[urlHash].forEach((method, methodIndex) => {
+                        const methodId = `${urlId}-method${methodIndex}-section`;
+                        const payloadsId = `payloads-${methodId}`;
+
+                        const methodHeader = document.createElement('div');
+                        methodHeader.id = methodId;
+                        methodHeader.className = 'method-header';
+                        methodHeader.setAttribute('data-payloads-id', payloadsId);
+                        methodHeader.setAttribute('data-url', url);
+                        methodHeader.setAttribute('data-method', method);
+                        methodHeader.innerHTML = `
+                            ${method}
+                            <button class="remove-btn" data-method-id="${methodId}">Remove</button>
+                        `;
+                        methodsSection.appendChild(methodHeader);
+
+                        const payloadSection = document.createElement('div');
+                        payloadSection.id = payloadsId;
+                        payloadSection.className = 'hidden payload-section';
+
+                        if (urlToMethodsToPayloads[urlHash][method]) {
+                            urlToMethodsToPayloads[urlHash][method].forEach((payload, payloadIndex) => {
+                                const payloadId = `${methodId}-payload${payloadIndex}`;
+
+                                const payloadDiv = document.createElement('div');
+                                payloadDiv.id = payloadId;
+                                payloadDiv.className = 'payload';
+                                payloadDiv.setAttribute('data-url', url);
+                                payloadDiv.setAttribute('data-method', method);
+                                payloadDiv.setAttribute('data-payload', payload);
+                                payloadDiv.innerHTML = `
+                                    ${payload}
+                                    <button class="remove-btn" data-payload-id="${payloadId}">Remove</button>
+                                `;
+                                payloadSection.appendChild(payloadDiv);
+                            });
+                        }
+
+                        methodsSection.appendChild(payloadSection);
+                    });
+                }
+
+                urlSection.appendChild(methodsSection);
+                container.appendChild(urlSection);
+            }
+
+            document.querySelectorAll('.section-header').forEach(header => {
+                header.addEventListener('click', function () {
+                    const methodsId = this.getAttribute('data-methods-id');
+                    toggleSection(methodsId);
+                });
+            });
+
+            document.querySelectorAll('.method-header').forEach(header => {
+                header.addEventListener('click', function () {
+                    const payloadsId = this.getAttribute('data-payloads-id');
+                    toggleSection(payloadsId);
+                });
+            });
+
+            document.querySelectorAll('.remove-btn').forEach(button => {
+                button.addEventListener('click', function (event) {
+                    const urlId = this.getAttribute('data-url-id');
+                    const methodId = this.getAttribute('data-method-id');
+                    const payloadId = this.getAttribute('data-payload-id');
+                    console.log("urlId " + urlId + "methodId " + methodId + "payloadId " + payloadId);
+
+                    if (urlId) removeElement(urlId);
+                    if (methodId) removeElement(methodId);
+                    if (payloadId) removeElement(payloadId);
+
+                    event.stopPropagation();
+                });
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', async function () {
+            // Example data
+            const urls = ['url1', 'url2', 'url3', 'url4'];
+            const urlToMethods = {
+                "2b9a40694179883a0dd41b2b16be242746cff1ac8cfd0fdfb44b7279bfc56362" : ['POST' , 'UPDATE'],
+                "5c79bf2476b63a5908261aaad68719c6a2e62e5a3177f8ab97f82da348ba6e37" : ['DELETE' , 'HI']
+            };
+            const urlToMethodsToPayloads = {
+                "2b9a40694179883a0dd41b2b16be242746cff1ac8cfd0fdfb44b7279bfc56362" : {
+                    "POST" : ["Adarsh" , "Checking"],
+                    
+                },
+                "5c79bf2476b63a5908261aaad68719c6a2e62e5a3177f8ab97f82da348ba6e37" : {
+                    'HI' : ["WE " , "ARE"]
+                }
+            };
+            await generateHtml(urls, urlToMethods, urlToMethodsToPayloads);
+        });
+    </script>
+</body>
+</html>

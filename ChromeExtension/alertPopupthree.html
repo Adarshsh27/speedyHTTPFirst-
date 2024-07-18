@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Network Call Analysis</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f5f5f5;
+        color: #333;
+        margin: 20px;
+      }
+
+      h2 {
+        color: #007bff;
+      }
+
+      .section {
+        background-color: #fff;
+        border: 1px solid #ddd;
+        padding: 10px;
+        margin-bottom: 10px;
+        position: relative;
+      }
+
+      .hidden {
+        display: none;
+      }
+
+      .section-header {
+        font-weight: bold;
+        cursor: pointer;
+      }
+
+      .clear-btn {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background-color: red;
+        color: white;
+        border: none;
+        cursor: pointer;
+      }
+
+      .details {
+        margin-top: 10px;
+      }
+
+      .details .btn {
+        display: block;
+        margin: 10px 0;
+        padding: 5px 10px;
+        cursor: pointer;
+      }
+
+      .two-columns {
+        display: flex;
+        justify-content: space-between;
+      }
+
+      .column {
+        width: 48%;
+        background-color: #fff;
+        border: 1px solid #ddd;
+        padding: 10px;
+      }
+
+      .message-box {
+        background-color: #f0f0f0;
+        border: 1px solid #ccc;
+        padding: 10px;
+        margin-top: 10px;
+      }
+
+      .section-container {
+        margin-bottom: 20px;
+      }
+
+      .show-more-btn {
+        display: block;
+        margin: 10px auto;
+        padding: 10px;
+        cursor: pointer;
+      }
+      .button2 {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="benchmark-container" class="section-container hidden">
+      <h2 id="benchmark-heading">Failed Benchmark</h2>
+      <div id="benchmark-sections"></div>
+      <button id="benchmark-show-more" class="show-more-btn button2 hidden">
+        Show More
+      </button>
+    </div>
+
+    <div id="validation-container" class="section-container hidden">
+      <h2 id="validation-heading">Failed Validation</h2>
+      <div id="validation-sections"></div>
+      <button id="validation-show-more" class="show-more-btn button2 hidden">
+        Show More
+      </button>
+    </div>
+
+   <script src="./alertPopupThree.js"></script>
+  </body>
+</html>

@@ -131,6 +131,34 @@ function connectWebSocket() {
     socket.onmessage = function(event) {
         let a = (JSON.parse(event.data));
         console.log(a);
+        if(a.message == "validationFailed"){
+            let message = {
+                message : "validationFailed",
+                queriesMissing : a.missingQueries,
+                payloadMissing : a.missingPayload
+            };
+            chrome.rutime.sendMessage(message);
+        }else if(a.message == "benchmarkFailed"){
+            if(a.error == "identical"){
+                let message = {
+                    error : a.error
+                };
+                chrome.rutime.sendMessage(message);
+            }else if(a.error == "extraQuery"){
+                let message = {
+                    erorr : a.erorr,
+                    extraKey : error.extraQuery.key,
+                    extraValue : erorr.extraQuery.badValue
+                };
+                chrome.rutime.sendMessage(message);
+            }else if(a.error == "differentQueryValues"){
+                let message = {
+                    error : a.erorr,
+                    differenceArray : a.differenceArray
+                };
+                chrome.rutime.sendMessage(message);
+            }
+        }
     };
 
     socket.onclose = function() {
@@ -140,9 +168,10 @@ function connectWebSocket() {
     socket.onerror = function(error) {
         console.error('WebSocket error: ' + error);
     };
+    // console.log("infinite");
+    // connectWebSocket();
 }
+connectWebSocket();
 
-chrome.runtime.onStartup.addListener(connectWebSocket);
-chrome.runtime.onInstalled.addListener(connectWebSocket);
 
 

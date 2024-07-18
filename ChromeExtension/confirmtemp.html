@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Confirmation Example</title>
+</head>
+<body>
+
+<button id="confirmButton">Click me</button>
+
+<script>
+    document.getElementById('confirmButton').addEventListener('click', () => {
+        let userChoice = confirm("Do you want to be redirected to a different page?");
+        
+        if (userChoice) {
+            // Redirect to a different page
+            window.location.href = 'https://www.example.com';
+        } else {
+            // Simply dismiss the alert
+            alert("You chose to stay on the current page.");
+        }
+    });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTTP Method and Payload Filter</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            margin: 20px;
+        }
+
+        h1 {
+            color: #007bff;
+            text-align: center;
+        }
+
+        form {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        label {
+            font-weight: bold;
+            color: #555;
+        }
+
+        input[type="text"] {
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin-top: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .popup {
+            border: 1px solid #ccc;
+            background-color: #fafafa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .dropdown button:hover {
+            background-color: #0056b3;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #f9f9f9;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+            z-index: 1;
+        }
+
+        .dropdown-content div {
+            color: black;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .dropdown-content div:hover {
+            background-color: #f1f1f1;
+        }
+
+        .dropdown-content div.selected {
+            background-color: #d9d9d9;
+        }
+
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+
+        .method-tags {
+            margin-top: 10px;
+            margin-bottom: 20px;
+        }
+
+        .method-tag {
+            display: inline-block;
+            background-color: #d9d9d9;
+            padding: 5px 10px;
+            margin-right: 5px;
+            border-radius: 3px;
+            color: #555;
+            font-weight: bold;
+        }
+
+        #result {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            margin: 20px auto;
+        }
+
+        #result h2 {
+            color: #007bff;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>HTTP Method and Payload Filter</h1>
+
+    <form id="methodForm">
+        <label for="urlInput">URL:</label>
+        <input type="text" id="urlInput" name="url" required><br><br>
+
+        <div class="dropdown">
+            <button type="button">HTTP Method</button>
+            <div class="dropdown-content" id="methodSelect">
+                <div data-value="GET">GET</div>
+                <div data-value="POST">POST</div>
+                <div data-value="PUT">PUT</div>
+                <div data-value="DELETE">DELETE</div>
+                <div data-value="PATCH">PATCH</div>
+                <div data-value="OPTIONS">OPTIONS</div>
+                <div data-value="UPDATE">UPDATE</div>
+            </div>
+        </div><br><br>
+
+        <div id="selectedMethods" class="method-tags"></div>
+
+        <div id="postPopup" class="hidden popup">
+            <label for="payloadFilterInput">Add Payload Filter for POST:</label>
+            <input type="text" id="postPayloadFilterInput" class="payloadFilterInput" name="payloadFilter">
+            <button type="button" id="postAddPayload" >Add</button>
+            <button type="button" id="clearPostPayload" >Clear</button>
+            <button type="button" id="postHidePopup" >OK</button><br><br>
+
+            <div id="filtersContainer">
+                <h3>Current Filters for POST:</h3>
+                <ul id="postFiltersList"></ul>
+            </div>
+        </div>
+        <div id="putPopup" class="hidden popup">
+            <label for="payloadFilterInput">Add Payload Filter for PUT:</label>
+            <input type="text" id="putPayloadFilterInput" class="payloadFilterInput" name="payloadFilter">
+            <button type="button" id="putAddPayload" >Add</button>
+            <button type="button" id="clearPutPayload" >Clear</button>
+            <button type="button" id="putHidePopup" >OK</button><br><br>
+
+            <div id="filtersContainer">
+                <h3>Current Filters for PUT:</h3>
+                <ul id="putFiltersList"></ul>
+            </div>
+        </div>
+
+        <button type="button" id="submitForm">Submit</button>
+    </form>
+
+    <div id="result" class="hidden">
+        <h2>Submitted Data</h2>
+        <pre id="resultData"></pre>
+    </div>
+
+  <script src="addThirdUrl.js"></script>
+
+</body>
+</html>

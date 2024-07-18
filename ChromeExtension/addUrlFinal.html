@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTTP Method and Payload Filter</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            margin: 20px;
+        }
+
+        h1 {
+            color: #007bff;
+            text-align: center;
+        }
+
+        form {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        label {
+            font-weight: bold;
+            color: #555;
+        }
+
+        input[type="text"] {
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin-top: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .popup {
+            border: 1px solid #ccc;
+            background-color: #fafafa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .dropdown button:hover {
+            background-color: #0056b3;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #f9f9f9;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+            z-index: 1;
+        }
+
+        .dropdown-content div {
+            color: black;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .dropdown-content div:hover {
+            background-color: #f1f1f1;
+        }
+
+        .dropdown-content div.selected {
+            background-color: #d9d9d9;
+        }
+
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+
+        .method-tags {
+            margin-top: 10px;
+            margin-bottom: 20px;
+        }
+
+        .method-tag {
+            display: inline-block;
+            background-color: #d9d9d9;
+            padding: 5px 10px;
+            margin-right: 5px;
+            border-radius: 3px;
+            color: #555;
+            font-weight: bold;
+        }
+
+        #result {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            margin: 20px auto;
+        }
+
+        #result h2 {
+            color: #007bff;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>HTTP Method and Payload Filter</h1>
+
+    <form id="methodForm">
+        <label for="urlInput">URL:</label>
+        <input type="text" id="urlInput" name="url" required><br><br>
+
+        <div class="dropdown">
+            <button type="button">HTTP Method</button>
+            <div class="dropdown-content" id="methodSelect">
+                <div data-value="GET">GET</div>
+                <div data-value="POST">POST</div>
+                <div data-value="PUT">PUT</div>
+                <div data-value="DELETE">DELETE</div>
+                <div data-value="PATCH">PATCH</div>
+                <div data-value="OPTIONS">OPTIONS</div>
+                <div data-value="UPDATE">UPDATE</div>
+            </div>
+        </div><br><br>
+
+        <div id="selectedMethods" class="method-tags"></div>
+        
+        <!-- <div id="GetPopup" class="hidden popup">
+            <label for="payloadFilterInput">Add Payload Filter for GET:</label>
+            <input type="text" id="getPayloadFilterInput" class="payloadFilterInput" name="payloadFilter">
+            <button type="button" id="getAddPayload">Add</button>
+            <button type="button" id="clearPostPayload">Clear</button>
+            <button type="button" id="getHidePopup">OK</button><br><br>
+
+            <div id="filtersContainer">
+                <h3>Current Filters for GET:</h3>
+                <ul id="getFiltersList"></ul>
+            </div>
+        </div> -->
+        <div id="updatePopup" class="hidden popup">
+            <label for="payloadFilterInput">Add Payload Filter for UPDATE:</label>
+            <input type="text" id="updatePayloadFilterInput" class="payloadFilterInput" name="payloadFilter">
+            <button type="button" id="updateAddPayload">Add</button>
+            <button type="button" id="clearUpdatePayload">Clear</button>
+            <button type="button" id="updateHidePopup">OK</button><br><br>
+
+            <div id="filtersContainer">
+                <h3>Current Filters for UPDATE:</h3>
+                <ul id="updateFiltersList"></ul>
+            </div>
+        </div>
+        <div id="postPopup" class="hidden popup">
+            <label for="payloadFilterInput">Add Payload Filter Key for POST:</label>
+            <input type="text" id="postPayloadFilterKeyInput" class="payloadFilterInput" name="payloadFilter"><br><br>
+            <label for="payloadFilterInput">Add Payload Filter Value for POST:</label>
+            <input type="text" id="postPayloadFilterValueInput" class="payloadFilterInput" name="payloadFilter"><br><br>
+            <button type="button" id="postAddPayload">Add</button>
+            <button type="button" id="clearPostPayload">Clear</button>
+            <button type="button" id="postHidePopup">OK</button><br><br>
+
+            <div id="filtersContainer">
+                <h3>Current Filters for POST:</h3>
+                <ul id="postFiltersList"></ul>
+            </div>
+        </div>
+        <div id="deletePopup" class="hidden popup">
+            <label for="payloadFilterInput">Add Payload Filter for DELETE:</label>
+            <input type="text" id="deletePayloadFilterInput" class="payloadFilterInput" name="payloadFilter">
+            <button type="button" id="deleteAddPayload">Add</button>
+            <button type="button" id="clearDeletePayload">Clear</button>
+            <button type="button" id="deleteHidePopup">OK</button><br><br>
+
+            <div id="filtersContainer">
+                <h3>Current Filters for DELETE:</h3>
+                <ul id="deleteFiltersList"></ul>
+            </div>
+        </div>
+        <div id="optionsPopup" class="hidden popup">
+            <label for="payloadFilterInput">Add Payload Filter for OPTIONS:</label>
+            <input type="text" id="optionsPayloadFilterInput" class="payloadFilterInput" name="payloadFilter">
+            <button type="button" id="optionsAddPayload">Add</button>
+            <button type="button" id="clearOptionsPayload">Clear</button>
+            <button type="button" id="optionsHidePopup">OK</button><br><br>
+
+            <div id="filtersContainer">
+                <h3>Current Filters for OPTIONS:</h3>
+                <ul id="optionsFiltersList"></ul>
+            </div>
+        </div>
+        <div id="putPopup" class="hidden popup">
+            <label for="payloadFilterInput">Add Payload Filter Key for PUT:</label>
+            <input type="text" id="putPayloadFilterKeyInput" class="payloadFilterInput" name="payloadFilter"><br><br>
+            <label for="queryValueInput">Add Payload Filter Value for PUT:</label>
+            <input type="text" id="putPayloadFilterValueInput" class="payloadFilterInput" name="payloadFilter"><br><br>
+            <button type="button" id="putAddPayload">Add</button>
+            <button type="button" id="clearPutPayload">Clear</button>
+            <button type="button" id="putHidePopup">OK</button><br><br>
+
+            <div id="filtersContainer">
+                <h3>Current Filters for PUT:</h3>
+                <ul id="putFiltersList"></ul>
+            </div>
+        </div>
+
+        <!-- <button type="button" id="addQueryButton">Add Query</button> -->
+        <div id="queryPopupGet" class="hidden popup">
+            <label for="queryKeyInput">Query Key:</label>
+            <input type="text" id="queryKeyInputGet" class="queryInput" name="queryKey"><br><br>
+            <label for="queryValueInput">Query Value:</label>
+            <input type="text" id="queryValueInputGet" class="queryInput" name="queryValue">
+            <button type="button" id="addQueryKeyValueGet">Add</button>
+            <button type="button" id="clearQueryGet">Clear</button>
+            <button type="button" id="hideQueryPopupGet">OK</button><br><br>
+
+            <div id="queryContainer">
+                <h3>Current Query Parameters for GET:</h3>
+                <ul id="queryListGet"></ul>
+            </div>
+        </div>
+
+        <div id="queryPopupPost" class="hidden popup">
+            <label for="queryKeyInput">Query Key:</label>
+            <input type="text" id="queryKeyInputPost" class="queryInput" name="queryKey"><br><br>
+            <label for="queryValueInput">Query Value:</label>
+            <input type="text" id="queryValueInputPost" class="queryInput" name="queryValue">
+            <button type="button" id="addQueryKeyValuePost">Add</button>
+            <button type="button" id="clearQueryPost">Clear</button>
+            <button type="button" id="hideQueryPopupPost">OK</button><br><br>
+
+            <div id="queryContainer">
+                <h3>Current Query Parameters for POST:</h3>
+                <ul id="queryListPost"></ul>
+            </div>
+        </div>
+
+        <div id="queryPopupPut" class="hidden popup">
+            <label for="queryKeyInput">Query Key:</label>
+            <input type="text" id="queryKeyInputPut" class="queryInput" name="queryKey"><br><br>
+            <label for="queryValueInput">Query Value:</label>
+            <input type="text" id="queryValueInputPut" class="queryInput" name="queryValue">
+            <button type="button" id="addQueryKeyValuePut">Add</button>
+            <button type="button" id="clearQueryPut">Clear</button>
+            <button type="button" id="hideQueryPopupPut">OK</button><br><br>
+
+            <div id="queryContainer">
+                <h3>Current Query Parameters for PUT:</h3>
+                <ul id="queryListPut"></ul>
+            </div>
+        </div>
+
+        <div id="queryPopupDelete" class="hidden popup">
+            <label for="queryKeyInput">Query Key:</label>
+            <input type="text" id="queryKeyInputDelete" class="queryInput" name="queryKey"><br><br>
+            <label for="queryValueInput">Query Value:</label>
+            <input type="text" id="queryValueInputDelete" class="queryInput" name="queryValue">
+            <button type="button" id="addQueryKeyValueDelete">Add</button>
+            <button type="button" id="clearQueryDelete">Clear</button>
+            <button type="button" id="hideQueryPopupDelete">OK</button><br><br>
+
+            <div id="queryContainer">
+                <h3>Current Query Parameters for DELETE:</h3>
+                <ul id="queryListDelete"></ul>
+            </div>
+        </div>
+
+        <div id="queryPopupPatch" class="hidden popup">
+            <label for="queryKeyInput">Query Key:</label>
+            <input type="text" id="queryKeyInputPatch" class="queryInput" name="queryKey"><br><br>
+            <label for="queryValueInput">Query Value:</label>
+            <input type="text" id="queryValueInputPatch" class="queryInput" name="queryValue">
+            <button type="button" id="addQueryKeyValuePatch">Add</button>
+            <button type="button" id="clearQueryPatch">Clear</button>
+            <button type="button" id="hideQueryPopupPatch">OK</button><br><br>
+
+            <div id="queryContainer">
+                <h3>Current Query Parameters for PATCH:</h3>
+                <ul id="queryListPatch"></ul>
+            </div>
+        </div>
+
+        <div id="queryPopupOptions" class="hidden popup">
+            <label for="queryKeyInput">Query Key:</label>
+            <input type="text" id="queryKeyInputOptions" class="queryInput" name="queryKey"><br><br>
+            <label for="queryValueInput">Query Value:</label>
+            <input type="text" id="queryValueInputOptions" class="queryInput" name="queryValue">
+            <button type="button" id="addQueryKeyValueOptions">Add</button>
+            <button type="button" id="clearQueryOptions">Clear</button>
+            <button type="button" id="hideQueryPopupOptions">OK</button><br><br>
+
+            <div id="queryContainer">
+                <h3>Current Query Parameters for OPTIONS:</h3>
+                <ul id="queryListOptions"></ul>
+            </div>
+        </div>
+
+        <div id="queryPopupUpdate" class="hidden popup">
+            <label for="queryKeyInput">Query Key:</label>
+            <input type="text" id="queryKeyInputUpdate" class="queryInput" name="queryKey"><br><br>
+            <label for="queryValueInput">Query Value:</label>
+            <input type="text" id="queryValueInputUpdate" class="queryInput" name="queryValue">
+            <button type="button" id="addQueryKeyValueUpdate">Add</button>
+            <button type="button" id="clearQueryUpdate">Clear</button>
+            <button type="button" id="hideQueryPopupUpdate">OK</button><br><br>
+
+            <div id="queryContainer">
+                <h3>Current Query Parameters for UPDATE:</h3>
+                <ul id="queryListPut"></ul>
+            </div>
+        </div>
+
+        <button type="button" id="submitForm">Submit</button>
+    </form>
+
+    <div id="result" class="hidden">
+        <h2>Submitted Data</h2>
+        <pre id="resultData"></pre>
+    </div>
+
+    <script src="./addUrlFinal.js"></script>
+</body>
+</html>

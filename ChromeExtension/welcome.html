@@ -7,35 +7,40 @@
 <body>
     <p id="welcomeMessage"></p>
     <form >
-        <label for="addurl">Enter URL:</label>
-        <input type="text" id="enterURL" name="enterURL"><br><br>
-        <button type="button" id="urlSubmit">Submit</button>
+        <!-- <label for="addurl">Enter URL:</label> -->
+        <!-- <input type="text" id="enterURL" name="enterURL"><br><br> -->
+        <button type="button" id="urlSubmit">Click To Add a URL </button>
      </form> 
     <form >
-        <label for="removeurl">Enter URL to remove:</label>
-        <input type="text" id="enterURLRemove" name="enterURLRemove"><br><br>
-        <button type="button" id="urlRemoveSubmit">Remove</button>
+        <!-- <label for="removeurl">Enter URL to remove:</label> -->
+        <!-- <input type="text" id="enterURLRemove" name="enterURLRemove"><br><br> -->
+        <button type="button" id="urlRemoveSubmit">Click To Remove a URL</button>
      </form> 
      <form >
          <label for="trackurl">Enter URL to get its benchmark:</label>
          <input type="text" id="enterURLTrack" name="enterURLTrack"><br><br>
+         <input type="text" id="enterMethodTrack" name="enterMethodTrack"><br><br>
          <button type="button" id="urlTrackSubmit">Track</button>
         </form> 
         <form >
             <label for="urlToGetAggregate">Enter URL you want to get aggregate of along with the timestamps :</label>
             <input type="text" placeholder="url" id="enterURLAggregate" name="enterURLAggregate"><br><br>
+            <input type="text" placeholder="method" id="enterMethodAggregate" name="enterMethodAggregate"><br><br>
             <input type="text" placeholder="from" id="enterTime1" name="enterTime1"><br><br>
             <input type="text" placeholder="to" id="enterTime2" name="enterTime2"><br><br>
             <button type="button" id="urlAggregateSubmit">Track</button>
         </form> 
-        <button id="plotButton">see-scatter-plot</button>
+
+        <button id="plotButton">See the Plot</button>
         
-     <button id="sign-out">Sign Out</button>
-     <!-- <form id="myForm">
-        <label for="textInput">Enter text:</label>
-        <input type="text" id="textInput" name="textInput">
-        <button type="button" onclick="handleFormSubmit()">Submit</button>
-    </form> -->
+        <!-- <form id="myForm">
+            <label for="textInput">Enter text:</label>
+            <input type="text" id="textInput" name="textInput">
+            <button type="button" onclick="handleFormSubmit()">Submit</button>
+        </form> -->
+        <input type="file" id="harFile" accept=".har">
+        <button id="uploadHar">upload</button>
+        <button id="sign-out">Sign Out</button>
      <script src="./welcome.js"></script>
 
       

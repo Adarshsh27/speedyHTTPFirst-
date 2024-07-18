@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Response Time Chart</title>
+    <style>
+        #chartContainer {
+            position: relative;
+            height: 400px;
+            width: 100%;
+        }
+        #dataDetails {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div id="chartContainer">
+        <canvas id="responseTimeChart"></canvas>
+    </div>
+    <div id="dataDetails"></div>
+
+    <!-- Include Chart.js and the date adapter -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation"></script>
+    <script>
+        // Sample data
+        const data = [
+            { responseTime: 150, timestamp: 1610059600, id: '1', benchmarkTime: 120 },
+            { responseTime: 200, timestamp: 1622563200, id: '2', benchmarkTime: 120 },
+            { responseTime: 100, timestamp: 1622566800, id: '3', benchmarkTime: 120 },
+            // Add more data points here
+        ];
+
+        // Parse data
+        const timestamps = data.map(d => new Date(d.timestamp * 1000));
+        const responseTimes = data.map(d => d.responseTime);
+        const ids = data.map(d => d.id);
+        const benchmarkTime = data[0].benchmarkTime;
+        const maxResponseTime = Math.max(...responseTimes);
+        const minResponseTime = Math.min(...responseTimes);
+
+        const ctx = document.getElementById('responseTimeChart').getContext('2d');
+        const chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: timestamps,
+                datasets: [{
+                    label: 'Response Time',
+                    data: responseTimes,
+                    borderColor: 'blue',
+                    borderWidth: 1,
+                    pointRadius: 5,
+                    pointHoverRadius: 8,
+                    fill: false
+                }]
+            },
+            options: {
+                scales: {
+                    x: {
+                        type: 'time',
+                        time: {
+                            unit: 'hour'
+                        },
+                        title: {
+                            display: true,
+                            text: 'Timestamp'
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Response Time (ms)'
+                        }
+                    }
+                },
+                plugins: {
+                    annotation: {
+                        annotations: [
+                            {
+                                type: 'line',
+                                scaleID: 'y',
+                                value: maxResponseTime,
+                                borderColor: 'red',
+                                borderWidth: 2,
+                                label: {
+                                    content: 'Max Response Time',
+                                    enabled: true,
+                                    position: 'end',
+                                    backgroundColor: 'red'
+                                }
+                            },
+                            {
+                                type: 'line',
+                                scaleID: 'y',
+                                value: minResponseTime,
+                                borderColor: 'green',
+                                borderWidth: 2,
+                                label: {
+                                    content: 'Min Response Time',
+                                    enabled: true,
+                                    position: 'end',
+                                    backgroundColor: 'green'
+                                }
+                            },
+                            {
+                                type: 'line',
+                                scaleID: 'y',
+                                value: benchmarkTime,
+                                borderColor: 'orange',
+                                borderWidth: 2,
+                                label: {
+                                    content: 'Benchmark Time',
+                                    enabled: true,
+                                    position: 'end',
+                                    backgroundColor: 'orange'
+                                }
+                            }
+                        ]
+                    }
+                },
+                onClick: (e, elements) => {
+                    if (elements.length > 0) {
+                        const index = elements[0].index;
+                        const id = ids[index];
+                        // Simulate an API call to get JSON data
+                        const jsonData = JSON.stringify({ id, data: 'Sample JSON data for ID ' + id }, null, 2);
+                        document.getElementById('dataDetails').innerText = jsonData;
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

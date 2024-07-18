@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Response Time Chart</title>
+    <!-- <style> 
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        #chartContainer {
+            position: relative;
+            height: 400px;
+            width: 100%;
+            margin-top: 20px;
+        }
+        .input-container {
+            margin-bottom: 10px;
+        }
+        .input-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+        .input-group input {
+            margin-right: 5px;
+            padding: 5px;
+            font-size: 14px;
+        }
+        .input-group button {
+            margin-right: 5px;
+            padding: 5px 10px;
+            font-size: 14px;
+        }
+        .json-box {
+            margin-top: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            background-color: #f9f9f9;
+            position: relative;
+        }
+        .json-box pre {
+            margin: 0;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        .json-box button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 3px 6px;
+            font-size: 12px;
+        }
+        #clearAllButton {
+            margin-top: 10px;
+            padding: 5px 10px;
+            font-size: 14px;
+        }
+    </style> --->
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            margin: 20px;
+        }
+
+        h1 {
+            color: #007bff;
+            text-align: center;
+        }
+
+        #chartContainer {
+            position: relative;
+            height: 500px;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        #dataDetails {
+            margin-top: 20px;
+        }
+
+        .json-box {
+            border: 1px solid #ccc;
+            background-color: #fafafa;
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        .json-box pre {
+            margin: 0;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .json-box button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 3px 6px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        #clearAllButton , button{
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 14px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        #chartContainer{
+            justify-content: center;
+            align-items: center;
+            display: flex;
+            margin: 0 auto;
+        }
+        #responseTimeChart{
+            align-items: center;
+        }
+        #clearAllButton:hover {
+            background-color: #0056b3;
+        }
+        #buttonContainer{
+            justify-content: center;
+            align-items: center;
+            display: flex;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>Response Time Chart</h1>
+    <button id="addInput">+</button>
+    <div class="input-container"></div>
+    <div id="chartContainer">
+        <canvas id="responseTimeChart"></canvas>
+    </div>
+    <div id="dataDetailsContainer"></div>
+    <div id="buttonContainer">
+
+        <button id="clearAllButton">Clear All</button>
+    </div>
+
+    <!-- Include Chart.js, date adapter, annotation plugin, and zoom plugin -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom"></script>
+    <script>
+        // Initial data array
+        let datasets = [];
+        let colorIndex = 0;
+
+        // Color array for different datasets
+        const colors = ['blue', 'red', 'green', 'orange', 'purple', 'cyan'];
+
+        // Sample data for testing
+        const sampleData1 = [
+            { responseTime: 150, timestamp: 1622559600, id: '1', benchmarkTime: 120 },
+            { responseTime: 200, timestamp: 1622563200, id: '2', benchmarkTime: 120 },
+            { responseTime: 100, timestamp: 1622566800, id: '3', benchmarkTime: 120 },
+        ];
+        const sampleData2 = [
+            { responseTime: 180, timestamp: 1622559600, id: '4', benchmarkTime: 110 },
+            { responseTime: 220, timestamp: 1622563200, id: '5', benchmarkTime: 110 },
+            { responseTime: 130, timestamp: 1622566800, id: '6', benchmarkTime: 110 },
+        ];
+
+        // Function to create a new dataset object
+        function createDataset(data, color, label) {
+            const timestamps = data.map(d => new Date(d.timestamp * 1000));
+            const responseTimes = data.map(d => d.responseTime);
+            return {
+                label: label,
+                data: data.map(d => ({ x: new Date(d.timestamp * 1000), y: d.responseTime })),
+                borderColor: color,
+                borderWidth: 1,
+                pointRadius: 5,
+                pointHoverRadius: 8,
+                fill: false,
+                backgroundColor: color
+            };
+        }
+
+        const ctx = document.getElementById('responseTimeChart').getContext('2d');
+        const chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                datasets: datasets
+            },
+            options: {
+                scales: {
+                    x: {
+                        type: 'time',
+                        time: {
+                            unit: 'hour'
+                        },
+                        title: {
+                            display: true,
+                            text: 'Timestamp'
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Response Time (ms)'
+                        }
+                    }
+                },
+                plugins: {
+                    annotation: {
+                        annotations: []
+                    },
+                    zoom: {
+                        zoom: {
+                            wheel: {
+                                enabled: true,
+                            },
+                            pinch: {
+                                enabled: true
+                            },
+                            mode: 'xy',
+                        },
+                        pan: {
+                            enabled: true,
+                            mode: 'xy',
+                        }
+                    }
+                },
+                onClick: (e, elements) => {
+                    if (elements.length > 0) {
+                        const datasetIndex = elements[0].datasetIndex;
+                        const index = elements[0].index;
+                        const id = datasets[datasetIndex].data[index].id;
+                        // Simulate an API call to get JSON data
+                        const jsonData = JSON.stringify({ id, data: 'Sample JSON data for ID ' + id }, null, 2);
+                        addJsonDetails(jsonData);
+                    }
+                }
+            }
+        });
+
+        document.getElementById('addInput').addEventListener('click', () => {
+            const container = document.createElement('div');
+            container.classList.add('input-group');
+
+            const urlInput = document.createElement('input');
+            urlInput.placeholder = 'Enter URL';
+
+            const methodInput = document.createElement('input');
+            methodInput.placeholder = 'Enter Method';
+
+            const addButton = document.createElement('button');
+            addButton.textContent = 'Add';
+            // addButton.style.add("left-border : solid")
+
+            const removeButton = document.createElement('button');
+            removeButton.textContent = '-';
+
+            container.appendChild(urlInput);
+            container.appendChild(methodInput);
+            container.appendChild(addButton);
+            container.appendChild(removeButton);
+            document.querySelector('.input-container').appendChild(container);
+
+            removeButton.addEventListener('click', () => {
+                const index = Array.from(document.querySelectorAll('.input-container .input-group')).indexOf(container);
+                datasets.splice(index, 1);
+                updateChart();
+                container.remove();
+            });
+
+            addButton.addEventListener('click', () => {
+                // Simulate fetching data from an API using the URL and method
+                const inputData = (colorIndex % 2 === 0) ? sampleData1 : sampleData2; // Example: alternate between sample data sets
+                const color = colors[colorIndex % colors.length];
+                colorIndex++;
+                const newDataset = createDataset(inputData, color, `Dataset ${colorIndex}`);
+                datasets.push(newDataset);
+                updateChart();
+            });
+        });
+
+        function updateChart() {
+            chart.data.datasets = datasets;
+            chart.update();
+        }
+
+        function addJsonDetails(jsonData) {
+            const jsonBox = document.createElement('div');
+            jsonBox.classList.add('json-box');
+            
+            const pre = document.createElement('pre');
+            pre.textContent = jsonData;
+            
+            const clearButton = document.createElement('button');
+            clearButton.textContent = 'Clear';
+            
+            clearButton.addEventListener('click', () => {
+                jsonBox.remove();
+            });
+            
+            jsonBox.appendChild(pre);
+            jsonBox.appendChild(clearButton);
+            document.getElementById('dataDetailsContainer').appendChild(jsonBox);
+        }
+
+        document.getElementById('clearAllButton').addEventListener('click', () => {
+            document.getElementById('dataDetailsContainer').innerHTML = '';
+        });
+    </script>
+</body>
+</html>
